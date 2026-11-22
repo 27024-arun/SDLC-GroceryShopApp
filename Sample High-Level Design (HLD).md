@@ -41,7 +41,6 @@ The existing applications are time consuming and it doesn't enable future extens
 
 ### 3.3 Assumptions and Constraints
 
-Document assumptions, dependencies, technical limitations, time constraints, and other factors that influence the design.
 
 - **Assumptions:**
 - The data needs to be stored persistently, so the stock maintenance can be done.
@@ -53,233 +52,201 @@ Document assumptions, dependencies, technical limitations, time constraints, and
 
 ### 4.1 Functional Requirements
 
-Describe what the system must do.
 
 | ID | Requirement | Description | Priority |
 |---|---|---|---|
-| FR-01 | [Requirement name] | [Expected behaviour] | [Priority] |
-| FR-02 | [Requirement name] | [Expected behaviour] | [Priority] |
+| FR-01 | User Registration | The application should receive details from user | [high] |
+| FR-02 | User Login | The application should authenticate using credentials | [high] |
+| FR-03 | Product categories | The application should display different products under various categories | [high] |
+| FR-04 | Product search | The application should allow user to search selective product | [high] |
+| FR-05 | Product listing | The application should display product with name, price and availability | [medium] |
+| FR-06 | Carting option | The product should be able to added to cart | [high] |
+| FR-07 | Cart removal | The product should be able to removed from cart | [high] |
+| FR-08 | Stock updation | After purchase the stock should be updated | [high] |
+
 
 ### 4.2 Non-Functional Requirements
 
-Describe the expected quality attributes and operational characteristics.
-
-Consider aspects such as performance, scalability, reliability, security, maintainability, usability, and observability where relevant.
 
 | ID | Attribute | Requirement / Expectation |
 |---|---|---|
-| NFR-01 | [Attribute] | [Expected outcome] |
-| NFR-02 | [Attribute] | [Expected outcome] |
+| NFR-01 | [Security] | [The user credentials should be stored securely] |
+| NFR-02 | [Data-Persistence] | [Product in cart should be stored persistenly for future look-up] |
+| NFR-03 | [Usability] | [The application flow should be user-friendly] |
+| NFR-04 | [Maintainability] | [The application should be divided into layers so future extension can be made] |
 
 ### 4.3 Open Questions and Clarifications
 
-Document unresolved requirements, questions for stakeholders, and assumptions requiring confirmation.
 
 | ID | Question / Uncertainty | Impact on Design | Status |
 |---|---|---|---|
-| Q-01 | [Question] | [Potential impact] | [Open / Resolved] |
+| Q-01 | [Details of the products that are sold by customer] | [Improper information of product in the app] | [Resolved] |
+| Q-02 | [Details to be collected from user during signup] | [Misses information for tracking user] | [Resolved] |
+| Q-03 | [Limits to adding to cart] | [Deviates from customer needs] | [Resolved] |
+
 
 ---
 
 ## 5. Proposed Solution
 
-Describe the proposed solution at a high level. Explain how it addresses the requirements and why the approach is appropriate.
+A Grocery E-Shoppping Portal needs to be developed, which should allow customers to purchase groceries.
 
 ### 5.1 Solution Overview
 
-- How will the solution work from the user's perspective?
-- What are the major components or building blocks?
-- How do these components interact?
-- What is the overall approach to solving the problem?
+- Users can register and login to the application.
+- They can explore differnt grocery products and add them to cart
+- In cart they, can purchase them individually or on-whole as their wish.
+- The stock will be updated after the purchase of the product.
 
 **Proposed Approach:**
 
-[Describe the solution.]
+The user registers into the application.
+The System authenticates the user.
+THe user can browse into different categories of products.
+They can search individual product which they need.
+They can view the cart which consists of their carted items.
+They can finally purchase the items in cart individually or fully as their wish.
 
 ### 5.2 High-Level Architecture
 
-Provide an architecture diagram showing the major components, their responsibilities, and how they communicate.
-
+The System contains three-layer architecture.
+The four layers are:
+1. Model layer
+2. View Layer.
+3. Service layer
+4. Repository layer
 **Architecture Diagram:**
 
-[Insert diagram here.]
+[![alt text](HLD-1.png)]
 
-Explain the responsibilities of the main components and the interactions between them.
 
 | Component | Responsibility | Interactions |
 |---|---|---|
-| [Component 1] | [Responsibility] | [Connected components] |
-| [Component 2] | [Responsibility] | [Connected components] |
+| [View Layer] | [Interacts with user such as collection and displaying data to user] | [Service layer] |
+| [Service layer] | [It consists of business logics of the application] | [View layer, Repository layer] |
+| [Repository layer] | [It enables the storage of data in the files/database] | [Service layer, Model layer] |
+| [Model layer] | [It consists of data models of the application] | [Repository layer] |
+
 
 ### 5.3 Technology Stack
 
-Identify the technologies selected for the solution and explain why each was chosen.
-
-Consider:
-
-- What language, runtime, or framework will be used?
-- How and where will data be stored?
-- What tools or libraries are required?
-- Why is each choice suitable for the requirements and constraints?
 
 | Area | Choice | Version | Reason for Selection |
 |---|---|---|---|
-| [Language / Runtime] | [Choice] | [Version] | [Reason] |
-| [Data Storage] | [Choice] | [Version] | [Reason] |
-| [Tools / Libraries] | [Choice] | [Version] | [Reason] |
+| [Language / Runtime] | [C#] | [8 or above] | [Supports OOPS concept and easily maintainable] |
+| [Data Storage] | [JSON (File storage)] | [10] | [Enables easy convertion to database] |
+| [Tools / Libraries] | [Visual Studio] | [18.0.2] | [Supports debugging of C# applications] |
+| [Version Control] | [Git/Github] | [2.56.0] | [Easily tracable and updatable] |
+
 
 ### 5.4 Module / Class Design
 
-Describe how the code will be organised into modules or classes and how they depend on each other.
-
-Consider:
-
-- How is the code organised into layers or modules?
-- Which modules or classes own which responsibilities?
-- How do the layers depend on each other?
-- How is business logic kept separate from the user interface and data storage?
-
 **Class / Module Diagram:**
-
-[Insert diagram here.]
 
 | Module / Class | Layer | Responsibility | Key Operations |
 |---|---|---|---|
-| [Module / Class 1] | [Layer] | [Responsibility] | [Operations] |
-| [Module / Class 2] | [Layer] | [Responsibility] | [Operations] |
+| [User Module] | [Service] | [Retrieves data from user] | [Manages the user data] |
+| [Cart Module] | [Service] | [Manages cart logics] | [Adding and removing product from cart] |
+| [Authentication Module] | [Service] | [Modifies the credentials] | [Encrypts and decrypts the credentials] |
+| [Storage Module] | [Repository] | [Stores and retrieves data] | [Data are stored persistently and fetched accordingly] |
+
 
 ### 5.5 Data Design
 
-Describe the data required by the solution and how it will be organised, stored, accessed, and maintained.
-
-Consider:
-
-- What are the main entities, objects, or data structures?
-- What are their important attributes and relationships?
-- Where and how will the data be stored?
-- What constraints, validation rules, or integrity requirements apply?
-- How will data be created, retrieved, updated, and deleted?
-- Are there any data migration, retention, or lifecycle considerations?
-
-**Data Model / Diagram:**
-
-[Insert an appropriate data model, entity relationship diagram, or other representation.]
-
 **Design and Rationale:**
 
-[Explain the proposed data design and important decisions.]
+The application uses JSON for data storage and retrieval.
+
+It mainly consists of two different data designs.
+1. User model - Consists of user data.
+2. Cart model - Consists of product data.
 
 ### 5.6 User Interface Design
 
-Describe how the user interacts with and navigates through the application.
-
-Consider:
-
-- What screens or menus exist?
-- How does the user move between them?
-- What information is displayed on each screen and what actions are available?
-- How are errors, confirmations, and empty results shown to the user?
-
-**Screen / Menu Flow Diagram:**
-
-[Insert diagram here.]
-
 | Screen ID | Screen Name | Purpose | Available Actions | Navigates To |
 |---|---|---|---|---|
-| S-01 | [Screen name] | [Purpose] | [Actions] | [Next screens] |
-| S-02 | [Screen name] | [Purpose] | [Actions] | [Next screens] |
+| S-01 | [Registration Screen] | [To enable registration for new customer] | [Enters details] | [Login] |
+| S-02 | [Login Screen] | [Authenticate user] | [Enter login credentials] | [Main menu] |
+| S-03 | [Main menu] | [Dislays list of options to redirect] | [Use can move to cart, product] | [Product] |
+| S-04 | [Product Screen] | [Displays various list of products] | [User can add the product to cart] | [Cart Screen] |
+| S-05 | [Cart Screen] | [Displays the items in cart] | [Users can purchase individually or whole] | [Main Menu] |
+
 
 ### 5.7 Core Workflows
 
-Describe the major end-to-end workflows.
+![alt text](GroceryShopAppDesign-1.png)
 
-For each workflow, identify:
+**Workflow 1: [User Registration and Login]**
 
-1. The trigger or user action.
-2. The main processing steps.
-3. The components involved.
-4. The data read or modified.
-5. The expected outcome.
-6. Important alternate paths or failure scenarios.
+1. The user opens the registration page.
+2. The user enters Full name, Unique user name, Mobile number, Password.
+3. The application validates the information.
+4. After signup, the user can login using login page.
+5. The user needs to enter login page credentials which is unique user-name and password.
+6. After successful login, it enables user to main menu.
 
-**Workflow 1: [Name]**
+**Workflow 2: [Product and Cart]**
 
-[Describe the workflow and include a flowchart or sequence diagram where useful.]
-
-**Workflow 2: [Name]**
-
-[Describe the workflow and include a flowchart or sequence diagram where useful.]
+1. User can redirect to product page using main menu.
+2. The System displays various categories of products.
+3. The user can select their willing category of product and search individual product.
+4. The selected product can be added to cart.
+5. After redirecting to cart, the user can initialise the purchase.
+6. The product purchase can be done individually or the whole.
+7. After the purchase, the story is updated.
 
 ### 5.8 Validation and Error Handling
 
-Identify how the solution will handle invalid inputs, unexpected conditions, and failures.
-
-Consider:
-
-- Input validation and business-rule enforcement.
-- Missing, invalid, or duplicate data.
-- Failures in storage, external services, or dependent components.
-- Appropriate error messages and recovery behaviour.
-- Logging and diagnostics where relevant.
-- Prevention of inconsistent or partially completed operations.
-
 | Scenario | Expected Behaviour | Proposed Handling |
 |---|---|---|
-| [Scenario 1] | [Expected outcome] | [Handling approach] |
-| [Scenario 2] | [Expected outcome] | [Handling approach] |
+| [Invalid login details] | [User should not be allowed to log in] | [Displays invalid credential message] |
+| [Duplicate data entry] | [User cannot be able to sign up] | [Displays invalid signup details message] |
+| [Unknown product search] | [Product should not be displayed] | [Displays no product found message] |
+| [No stock of product] | [User cannot be able to add to cart] | [Displays out of stock message] |
+| [Quanity is more than stock] | [User cannot be able to add to cart] | [Displays insufficient stock message] |
+
 
 ### 5.9 Security and Other Design Considerations
 
-Where applicable, explain how the solution addresses security, access control, sensitive data, performance, scalability, reliability, and maintainability.
-
-Include only the considerations relevant to the problem and explain any important trade-offs.
+1. User password is hashed and stored in the repository.
+2. The product quantity should be checked before purchasing the product in cart.
+3. Input validation should prevent invalid data.
 
 ### 5.10 Extensibility and Future Readiness
 
-Explain how the design supports expected future changes without major rework.
-
-Consider:
-
-- How can the user interface be replaced or extended without changing the core logic?
-- How will frequently changing data be updated without code changes?
-- How can new data types, categories, or features be added?
-- Which parts of the design would need to change, and how much effort would that take?
-
 | Change Scenario | How the Design Supports It | Code Change Needed (Y/N) | Effort |
 |---|---|---|---|
-| [Scenario 1] | [Approach] | [Y/N] | [Low / Medium / High] |
-| [Scenario 2] | [Approach] | [Y/N] | [Low / Medium / High] |
+| [Online payment] | [A separate payment module can be created and integrated with purchase module] | [Y] | [Medium] |
+| [Product Image addition] | [Images are already stored in the file which can be used for extension] | [Y] | [Low] |
+| [Database integration] | [Repository layer can be altered with required database] | [Y] | [Low] |
+| [Change into web application] | [Individual layers can be integrated with individual stacks] | [Y] | [Medium] |
 
 ---
 
 ## 6. Testing Approach
 
-Describe how the proposed solution will be verified against the requirements.
-
 ### 6.1 Testing Scope
 
-Identify the types of testing applicable to the solution, such as:
-
-- Functional and acceptance testing.
-- Positive and negative scenario testing.
-- Boundary and validation testing.
-- Integration testing.
-- Performance, security, or reliability testing where applicable.
+1. Verify user registration and login.
+2. Verify product category display.
+3. Verify product search.
+4. Verify addition and removal of product in cart.
+5. Verify stock updation.
 
 ### 6.2 Test Scenarios
 
-List the important scenarios and expected outcomes.
-
 | Test ID | Scenario | Expected Result |
 |---|---|---|
-| TC-01 | [Scenario] | [Expected result] |
-| TC-02 | [Scenario] | [Expected result] |
-
-### 6.3 Test Strategy and Acceptance Criteria
-
-Explain how testing will be performed, what constitutes successful completion, and how test results and defects will be recorded.
-
-[Describe the testing approach and acceptance criteria.]
+| TC-01 | [Register with valid details] | [User account is created successfully] |
+| TC-02 | [Register with invalid details] | [User account is not created] |
+| TC-03 | [Login with valid details] | [User is logged into main menu] |
+| TC-04 | [Login with invalid details] | [User won't be able to login] |
+| TC-05 | [VIew product categories] | [All the product categories should be displayed] |
+| TC-06 | [Search existing product] | [Display the details of the product] |
+| TC-07 | [Search non-existing product] | [Should display the non-existence message to usage] |
+| TC-08 | [Addition of product to cart] | [Product should be present in cart] |
+| TC-09 | [Removal of product from cart] | [Product should not exist in cart] |
+| TC-10 | [Purchase of empty cart] | [User cannot be able to purchase] |
 
 ---
 
@@ -289,35 +256,7 @@ Document the important design decisions, alternatives considered, and the ration
 
 | ID | Decision | Alternatives Considered | Selected Approach | Rationale and Trade-offs |
 |---|---|---|---|---|
-| D-01 | [Decision] | [Alternatives] | [Choice] | [Reasoning] |
-| D-02 | [Decision] | [Alternatives] | [Choice] | [Reasoning] |
-
-Include:
-
-- Why the selected approach is suitable.
-- Benefits and disadvantages of the alternatives.
-- Consequences and risks of the decision.
-- Decisions that remain open or depend on further clarification.
-
-Focus on decisions that materially affect the design rather than documenting every minor implementation choice.
-
----
-
-## 8. References
-
-List the sources used to understand the requirements and develop the proposed design.
-
-Examples include:
-
-- Requirement documents and specifications.
-- Relevant standards and technical documentation.
-- API or framework documentation.
-- Existing architecture documents and design decisions.
-- Research articles or other technical references.
-
-| Reference | Description | Link / Location |
-|---|---|---|
-| [Reference 1] | [What it supports] | [URL or location] |
-| [Reference 2] | [What it supports] | [URL or location] |
+| D-01 | [Application architecture] | [Hexagonal/MVVM] | [MVC] | [Reliable for small scale application and extensible] |
+| D-02 | [Storage unit] | [Databases/Files] | [JSON file storage] | [Extensible for future upgrades] |
 
 ---
