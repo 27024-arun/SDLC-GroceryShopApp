@@ -37,6 +37,18 @@ namespace GroceryShopApp.Repository
             }
         }
 
+        internal bool IsRegisteredUser(string userName, string password)
+        {
+            if (this._users.Any(user => user.UserName == userName && user.Password == password))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         internal User? GetUser(string userName, string password)
         {
             return this._users.FirstOrDefault(user => user.UserName == userName && user.Password == password);

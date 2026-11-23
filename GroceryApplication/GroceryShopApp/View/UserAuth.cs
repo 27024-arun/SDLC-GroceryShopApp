@@ -75,7 +75,7 @@ namespace GroceryShopApp.View
             {
                 ConsoleHelper.WriteColored("Logged In", ConsoleColor.Green);
                 Thread.Sleep(1000);
-                this._mainMenu.AssignCurrentUser(userName);
+                this._mainMenu.AssignCurrentUser(userName!);
                 Console.Clear();
                 this._mainMenu.MenuOptions();
             }

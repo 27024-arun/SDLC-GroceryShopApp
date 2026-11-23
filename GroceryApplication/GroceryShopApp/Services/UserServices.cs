@@ -43,7 +43,7 @@ namespace GroceryShopApp.Services
 
         internal bool UserExists(string userName, string password)
         {
-            if (this._userRepository.IsUserAlreadyExists(userName, password))
+            if (this._userRepository.IsRegisteredUser(userName, password))
             {
                 return true;
             }
