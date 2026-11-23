@@ -115,9 +115,10 @@ The four layers are:
 2. View Layer.
 3. Service layer
 4. Repository layer
+
 **Architecture Diagram:**
 
-[![alt text](HLD-1.png)]
+<img width="722" height="482" alt="HLD" src="https://github.com/user-attachments/assets/e5298eea-7277-44fb-96bb-b1db85194b00" />
 
 
 | Component | Responsibility | Interactions |
@@ -174,7 +175,7 @@ It mainly consists of two different data designs.
 
 ### 5.7 Core Workflows
 
-![alt text](GroceryShopAppDesign-1.png)
+<img width="2041" height="929" alt="GroceryShopAppDesign-1" src="https://github.com/user-attachments/assets/06f2171c-e764-48e7-ba42-ee2032a4a16c" />
 
 **Workflow 1: [User Registration and Login]**
 
