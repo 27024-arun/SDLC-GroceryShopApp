@@ -4,7 +4,7 @@
 **Author:** [ARUN]  
 **Date:** [20/11/2026]  
 **Version:** [1.0]  
-**Status:** In Review
+**Status:** Approved
 
 ---
 
@@ -31,12 +31,11 @@ The existing applications are time consuming and it doesn't enable future extens
 - Search option is enabled.
 - Option to put in cart and remove it.
 - Purchase summary and pricing logics.
+- Admin side stock management.
 
 ### 3.2 Out of Scope
 
-- Admin side management.
 - Payment option for customer.
-- Stock updation from owner.
 - User side profile changes.
 
 ### 3.3 Assumptions and Constraints
