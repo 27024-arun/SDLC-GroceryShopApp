@@ -1,4 +1,5 @@
-﻿using GroceryShopApp.Services;
+﻿using GroceryShopApp.Model;
+using GroceryShopApp.Services;
 
 namespace GroceryShopApp.View
 {
@@ -28,6 +29,7 @@ namespace GroceryShopApp.View
           ADMIN LOG-IN
 ==================================
 ");
+
             Console.Write("Enter admin user-name: ");
             string? userName = Console.ReadLine();
 
@@ -48,24 +50,91 @@ namespace GroceryShopApp.View
                 ConsoleHelper.CleanConsole();
                 return;
             }
-            else
+
+            ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
+            Thread.Sleep(1000);
+            Console.Clear();
+
+            this.AdminMenu();
+        }
+
+        /// <summary>
+        /// Displays the menu options for the admin.
+        /// </summary>
+        internal void AdminMenu()
+        {
+            while (true)
             {
-                ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
-                ConsoleHelper.CleanConsole();
-                this.AdminMenu();
+                Console.Write(@"
+==================================
+          ADMIN MENU
+==================================
+[V]iew Customer Orders
+[L]ogout
+
+Enter Choice: ");
+
+                ConsoleKey userChoice = Console.ReadKey().Key;
+                Console.Clear();
+                switch (userChoice)
+                {
+                    case ConsoleKey.V:
+                        this.DisplayOrders();
+                        break;
+                    case ConsoleKey.L:
+                        ConsoleHelper.WriteColored("\nLogging out...", ConsoleColor.Yellow);
+                        Thread.Sleep(1000);
+                        Console.Clear();
+                        return;
+                    default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
+                        break;
+                }
             }
         }
 
         /// <summary>
-        /// Menu options for the admin
+        /// Displays all customer orders.
         /// </summary>
-        internal void AdminMenu()
+        private void DisplayOrders()
         {
-            Console.Write($@"
+            List<Order> orders = this._adminServices.GetAllOrders();
+            Console.WriteLine(@"
 ==================================
-          ADMIN MENU
+        CUSTOMER ORDERS
+==================================");
+            if (orders.Count == 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nNo orders found.\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+
+            foreach (Order order in orders)
+            {
+                Console.WriteLine($@"
 ==================================
-");
+Order ID: {order.OrderId}
+Customer: {order.UserName}
+Order Date: {order.OrderDate}
+Delivery Address: {order.DeliveryAddress}
+Delivery Time: {order.DeliveryTime}");
+
+                foreach (OrderItem item in order.Items)
+                {
+                    Console.WriteLine($@"
+Product: {item.ProductName}
+Price: ₹{item.Price}
+Quantity: {item.Quantity}
+Subtotal: ₹{item.SubTotal}");
+                }
+
+                Console.WriteLine($@"
+Total Amount: ₹{order.TotalAmount}
+==================================");
+            }
+
+            ConsoleHelper.CleanConsole();
         }
     }
 }

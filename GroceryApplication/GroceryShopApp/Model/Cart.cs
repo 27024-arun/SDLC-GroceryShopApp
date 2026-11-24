@@ -16,5 +16,11 @@
         /// </summary>
         /// <value>Product values</value>
         public Product Product { get; set; } = new Product();
+
+        /// <summary>
+        /// Gets or sets the quantity of the product in cart.
+        /// </summary>
+        /// <value>Quantity of product in cart</value>
+        public int CartQuantity { get; set; }
     }
 }

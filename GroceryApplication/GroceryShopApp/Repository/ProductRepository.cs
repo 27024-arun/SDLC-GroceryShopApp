@@ -37,6 +37,23 @@ namespace GroceryShopApp.Repository
             return this._products.ToList();
         }
 
+        /// <summary>
+        /// Updates the stock quantity of a purchased product.
+        /// </summary>
+        /// <param name="productName">Name of the product.</param>
+        /// <param name="quantity">Quantity to be reduced.</param>
+        internal void UpdateProductStock(string productName, int quantity)
+        {
+            Product? product = this._products.FirstOrDefault(
+                item => item.Name == productName);
+
+            if (product != null)
+            {
+                product.Quantity -= quantity;
+                this.WriteAll();
+            }
+        }
+
         private void WriteAll()
         {
             string fileData = JsonSerializer.Serialize(this._products, this._options);

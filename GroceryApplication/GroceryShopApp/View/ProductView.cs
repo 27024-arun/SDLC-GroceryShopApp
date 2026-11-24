@@ -9,20 +9,24 @@ namespace GroceryShopApp.View
     internal class ProductView
     {
         private readonly ProductServices _productServices;
+        private readonly CartServices _cartServices;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductView"/> class.
         /// </summary>
         /// <param name="productServices">Services of the product.</param>
-        public ProductView(ProductServices productServices)
+        /// <param name="cartServices">Services of the cart.</param>
+        public ProductView(ProductServices productServices, CartServices cartServices)
         {
             this._productServices = productServices;
+            this._cartServices = cartServices;
         }
 
         /// <summary>
         /// Displays the product menu and fetches the user choice to redirect.
         /// </summary>
-        internal void DisplayProductMenu()
+        /// <param name="userName">Username of the current user.</param>
+        internal void DisplayProductMenu(string userName)
         {
             while (true)
             {
@@ -42,23 +46,24 @@ Enter Choice: ");
                 switch (userChoice)
                 {
                     case ConsoleKey.V:
-                        this.DisplayProducts(Categories.Vegetable);
+                        this.DisplayProducts(Categories.Vegetable, userName);
                         break;
                     case ConsoleKey.F:
-                        this.DisplayProducts(Categories.Fruit);
+                        this.DisplayProducts(Categories.Fruit, userName);
                         break;
                     case ConsoleKey.C:
-                        this.DisplayProducts(Categories.Cookware);
+                        this.DisplayProducts(Categories.Cookware, userName);
                         break;
                     case ConsoleKey.B:
                         return;
                     default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
                         break;
                 }
             }
         }
 
-        private void DisplayProducts(Categories category)
+        private void DisplayProducts(Categories category, string userName)
         {
             List<Product> products = this._productServices.GetProductsByCategory(category);
 
@@ -68,9 +73,7 @@ Enter Choice: ");
 ==================================
             {category.ToString().ToUpper()}
 ==================================");
-
                 this.DisplayProductList(products);
-
                 Console.Write(@"
 [S]earch Product
 [B]ack to Categories
@@ -113,7 +116,7 @@ Enter product number to select: ");
                 }
 
                 Product selectedProduct = products[productNumber - 1];
-                this.DisplaySelectedProduct(selectedProduct);
+                this.DisplaySelectedProduct(selectedProduct, userName);
             }
         }
 
@@ -134,7 +137,7 @@ Enter product number to select: ");
             }
         }
 
-        private void DisplaySelectedProduct(Product product)
+        private void DisplaySelectedProduct(Product product, string userName)
         {
             Console.WriteLine(@$"
 ==================================
@@ -150,6 +153,23 @@ Image: {product.ImageFile}");
             {
                 ConsoleHelper.WriteErrorMessage("\nOut of stock. Cannot add this product.\n");
                 return;
+            }
+
+            Console.Write("\nEnter quantity to add to cart: ");
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                return;
+            }
+
+            string result = this._cartServices.AddToCart(userName, product.Name, quantity);
+            if (result == "Product added to cart successfully.")
+            {
+                ConsoleHelper.WriteSuccessMessage($"\n{result}\n");
+            }
+            else
+            {
+                ConsoleHelper.WriteErrorMessage($"\n{result}\n");
             }
         }
     }

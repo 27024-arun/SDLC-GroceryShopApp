@@ -41,5 +41,14 @@ namespace GroceryShopApp.Services
             List<Product> products = this.GetProductsByCategory(category);
             return products.Where(product => product.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
         }
+
+        /// <summary>
+        /// Retrieves all products from the repository.
+        /// </summary>
+        /// <returns>List of all products.</returns>
+        internal List<Product> GetAllProducts()
+        {
+            return this._productRepository.GetAllProducts();
+        }
     }
 }
