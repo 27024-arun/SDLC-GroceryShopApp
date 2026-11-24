@@ -11,16 +11,19 @@ namespace GroceryShopApp
     {
         private static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             UserRepository userRepository = new UserRepository("Users.json");
             ProductRepository productRepository = new ProductRepository("Products.json");
 
             UserServices userServices = new UserServices(userRepository);
             ProductServices productServices = new ProductServices(productRepository);
+            AdminServices adminServices = new AdminServices(userRepository, productRepository);
 
             ProductView productView = new ProductView(productServices);
             MainMenu mainMenu = new MainMenu(productView);
             UserAuth userAuth = new UserAuth(userServices, mainMenu);
-            AdminLogin adminLogin = new AdminLogin();
+            AdminLogin adminLogin = new AdminLogin(adminServices);
 
             while (true)
             {

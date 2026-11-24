@@ -129,7 +129,7 @@ Enter product number to select: ");
             {
                 Product product = products[i];
                 Console.WriteLine($"\n{i + 1}. Product: {product.Name}");
-                Console.WriteLine($"   Price: ₹.{product.Price}");
+                Console.WriteLine($"   Price: ₹{product.Price}");
                 Console.WriteLine(product.Quantity == 0 ? "   Status: Out of stock" : $"   Remaining Stock: {product.Quantity}");
             }
         }
@@ -141,7 +141,7 @@ Enter product number to select: ");
         PRODUCT DETAILS
 ==================================
 Name: {product.Name}
-Price: Rs.{product.Price}
+Price: ₹{product.Price}
 Category: {product.Category}
 Stock: {product.Quantity}
 Image: {product.ImageFile}");

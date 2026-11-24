@@ -39,12 +39,15 @@ namespace GroceryShopApp.Services
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(password));
             string hashedPassword = Convert.ToHexString(hash).ToLowerInvariant();
 
+            bool isAdminPresent = this._userRepository.IsAdminPresent();
+
             User user = new User
             {
                 Name = fullName,
                 UserName = userName,
                 Phone = phone,
                 Password = hashedPassword,
+                IsAdmin = isAdminPresent ? false : true,
             };
 
             this._userRepository.AddUser(user);

@@ -7,6 +7,17 @@ namespace GroceryShopApp.View
     /// </summary>
     internal class AdminLogin
     {
+        private readonly AdminServices _adminServices;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminLogin"/> class.
+        /// </summary>
+        /// <param name="adminServices">Services of admin.</param>
+        public AdminLogin(AdminServices adminServices)
+        {
+            this._adminServices = adminServices;
+        }
+
         /// <summary>
         /// Asks the user for admin credentials to login.
         /// </summary>
@@ -23,19 +34,31 @@ namespace GroceryShopApp.View
             Console.Write("Enter admin password [Alpha-numeric]: ");
             string? password = Console.ReadLine();
 
-            if (!Validator.ValidateLoginFields(userName, password))
+            string validatorMessage = Validator.ValidateLoginFields(userName, password);
+            if (validatorMessage != "passed")
             {
-                ConsoleHelper.WriteErrorMessage("\nInvalid data\n");
+                ConsoleHelper.WriteErrorMessage($"\n{validatorMessage}\n");
                 ConsoleHelper.CleanConsole();
                 return;
             }
 
-            if (userName == "admin" && password == "password123")
+            if (!this._adminServices.IsAdmin(userName!, password!))
             {
+                ConsoleHelper.WriteErrorMessage("\nUser is not an admin\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+            else
+            {
+                ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
+                ConsoleHelper.CleanConsole();
                 this.AdminMenu();
             }
         }
 
+        /// <summary>
+        /// Menu options for the admin
+        /// </summary>
         internal void AdminMenu()
         {
             Console.Write($@"

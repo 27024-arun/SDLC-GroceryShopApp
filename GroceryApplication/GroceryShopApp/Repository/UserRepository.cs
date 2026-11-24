@@ -44,14 +44,7 @@ namespace GroceryShopApp.Repository
         /// <returns>Returns whether the user already exits or not</returns>
         internal bool IsUserAlreadyExists(string userName, string phone)
         {
-            if (this._users.Any(user => user.UserName == userName || user.Phone == phone))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return this._users.Any(user => user.UserName == userName || user.Phone == phone);
         }
 
         /// <summary>
@@ -62,25 +55,27 @@ namespace GroceryShopApp.Repository
         /// <returns>Returns true is user already signed up or vice-versa.</returns>
         internal bool IsRegisteredUser(string userName, string password)
         {
-            if (this._users.Any(user => user.UserName == userName && user.Password == password))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return this._users.Any(user => user.UserName == userName && user.Password == password);
         }
 
         /// <summary>
-        /// Retrieves a particular user details from the repository.
+        /// Checks whether the user has already signed up or not and checks if he is admin.
         /// </summary>
         /// <param name="userName">Unique username of the user</param>
         /// <param name="password">Password of the user</param>
-        /// <returns>Returns the details of the user</returns>
-        internal User? GetUser(string userName, string password)
+        /// <returns>Returns true is user already signed up or vice-versa and also checks if he is admin or not.</returns>
+        internal bool IsUserAdmin(string userName, string password)
         {
-            return this._users.FirstOrDefault(user => user.UserName == userName && user.Password == password);
+            return this._users.Any(user => user.UserName == userName && user.Password == password && user.IsAdmin == true);
+        }
+
+        /// <summary>
+        /// Identifies whether the admin is already present or not.
+        /// </summary>
+        /// <returns>Returns true if admin is present or not.</returns>
+        internal bool IsAdminPresent()
+        {
+            return this._users.Any(user => user.IsAdmin == true);
         }
 
         private void WriteAll()

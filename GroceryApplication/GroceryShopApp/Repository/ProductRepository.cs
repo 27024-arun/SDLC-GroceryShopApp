@@ -10,7 +10,6 @@ namespace GroceryShopApp.Repository
     internal class ProductRepository
     {
         private readonly List<Product> _products = new List<Product>();
-
         private readonly string _filePath;
 
         private readonly JsonSerializerOptions _options = new JsonSerializerOptions
