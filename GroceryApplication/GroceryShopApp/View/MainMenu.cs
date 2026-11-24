@@ -6,23 +6,26 @@
     internal class MainMenu
     {
         private readonly ProductView _productView;
+        private readonly CartView _cartView;
 
         private string _currentUser;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainMenu"/> class.
         /// </summary>
-        /// <param name="productView">View level operation of the product</param>
-        public MainMenu(ProductView productView)
+        /// <param name="productView">View level operation of the product.</param>
+        /// <param name="cartView">View level operation of the cart.</param>
+        public MainMenu(ProductView productView, CartView cartView)
         {
             this._currentUser = string.Empty;
             this._productView = productView;
+            this._cartView = cartView;
         }
 
         /// <summary>
         /// Assigns the current user for session handling.
         /// </summary>
-        /// <param name="userName">Unique username of the user</param>
+        /// <param name="userName">Unique username of the user.</param>
         public void AssignCurrentUser(string userName)
         {
             this._currentUser = userName;
@@ -51,20 +54,19 @@ Enter Choice: ");
                 switch (userChoice)
                 {
                     case ConsoleKey.P:
-                        this._productView.DisplayProductMenu();
+                        this._productView.DisplayProductMenu(this._currentUser);
                         break;
-
                     case ConsoleKey.C:
+                        this._cartView.DisplayCart(this._currentUser);
                         break;
-
                     case ConsoleKey.L:
                         this._currentUser = string.Empty;
                         ConsoleHelper.WriteColored("\nLogging out...", ConsoleColor.Yellow);
                         Thread.Sleep(1000);
                         Console.Clear();
                         return;
-
                     default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
                         break;
                 }
             }

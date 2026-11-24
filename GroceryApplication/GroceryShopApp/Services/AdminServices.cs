@@ -1,0 +1,58 @@
+﻿using System.Security.Cryptography;
+using System.Text;
+using GroceryShopApp.Model;
+using GroceryShopApp.Repository;
+
+namespace GroceryShopApp.Services
+{
+    /// <summary>
+    /// Handles the business logics for admin operations.
+    /// </summary>
+    internal class AdminServices
+    {
+        private readonly UserRepository _userRepository;
+        private readonly ProductRepository _productRepository;
+        private readonly OrderRepository _orderRepository;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminServices"/> class.
+        /// </summary>
+        /// <param name="userRepository">Repository of users.</param>
+        /// <param name="productRepository">Repository of products.</param>
+        /// <param name="orderRepository">Repository of orders.</param>
+        public AdminServices(UserRepository userRepository, ProductRepository productRepository, OrderRepository orderRepository)
+        {
+            this._userRepository = userRepository;
+            this._productRepository = productRepository;
+            this._orderRepository = orderRepository;
+        }
+
+        /// <summary>
+        /// Checks whether the user is an admin or not.
+        /// </summary>
+        /// <param name="userName">Username of admin.</param>
+        /// <param name="password">Password of admin.</param>
+        /// <returns>Returns whether the user is admin or not.</returns>
+        internal bool IsAdmin(string userName, string password)
+        {
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+            string hashedPassword = Convert.ToHexString(hash).ToLowerInvariant();
+
+            if (this._userRepository.IsUserAdmin(userName, hashedPassword))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieves all the customer orders.
+        /// </summary>
+        /// <returns>List of all orders.</returns>
+        internal List<Order> GetAllOrders()
+        {
+            return this._orderRepository.GetAllOrders();
+        }
+    }
+}
