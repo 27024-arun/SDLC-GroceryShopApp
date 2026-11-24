@@ -1,7 +1,13 @@
 ﻿namespace GroceryShopApp.View
 {
+    /// <summary>
+    /// Enables the admin to enter details to login.
+    /// </summary>
     internal class AdminLogin
     {
+        /// <summary>
+        /// Asks the user for admin credentials to login.
+        /// </summary>
         internal void Login()
         {
             Console.Write($@"
@@ -21,6 +27,20 @@
                 ConsoleHelper.CleanConsole();
                 return;
             }
+
+            if (userName == "admin" && password == "password123")
+            {
+                this.AdminMenu();
+            }
+        }
+
+        internal void AdminMenu()
+        {
+            Console.Write($@"
+==================================
+          ADMIN MENU
+==================================
+");
         }
     }
 }

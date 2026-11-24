@@ -4,15 +4,23 @@ using GroceryShopApp.View;
 
 namespace GroceryShopApp
 {
+    /// <summary>
+    /// Entry point of the application.
+    /// </summary>
     internal class Program
     {
         private static void Main(string[] args)
         {
             UserRepository userRepository = new UserRepository("Users.json");
-            UserServices userServices = new UserServices(userRepository);
+            ProductRepository productRepository = new ProductRepository("Products.json");
 
-            MainMenu mainMenu = new MainMenu();
+            UserServices userServices = new UserServices(userRepository);
+            ProductServices productServices = new ProductServices(productRepository);
+
+            ProductView productView = new ProductView(productServices);
+            MainMenu mainMenu = new MainMenu(productView);
             UserAuth userAuth = new UserAuth(userServices, mainMenu);
+            AdminLogin adminLogin = new AdminLogin();
 
             while (true)
             {
@@ -37,6 +45,7 @@ Enter Choice: ");
                         userAuth.Login();
                         break;
                     case ConsoleKey.A:
+                        adminLogin.Login();
                         break;
                     case ConsoleKey.E:
                         ConsoleHelper.WriteColored("\nExiting...", ConsoleColor.Cyan);

@@ -1,0 +1,45 @@
+﻿using GroceryShopApp.Model;
+using GroceryShopApp.Repository;
+
+namespace GroceryShopApp.Services
+{
+    /// <summary>
+    /// Handles the business logics for the products.
+    /// </summary>
+    internal class ProductServices
+    {
+        private readonly ProductRepository _productRepository;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProductServices"/> class.
+        /// </summary>
+        /// <param name="productRepository">Repository of the products.</param>
+        public ProductServices(ProductRepository productRepository)
+        {
+            this._productRepository = productRepository;
+        }
+
+        /// <summary>
+        /// Retrieves the list of products from a particular category.
+        /// </summary>
+        /// <param name="category">Category of the product.</param>
+        /// <returns>Returns the list of product of selected category.</returns>
+        internal List<Product> GetProductsByCategory(Categories category)
+        {
+            List<Product> products = this._productRepository.GetAllProducts();
+            return products.Where(product => product.Category == category).ToList();
+        }
+
+        /// <summary>
+        /// Handles the searching of products and returns the selected product.
+        /// </summary>
+        /// <param name="category">Category of the product to be found</param>
+        /// <param name="searchName">Name of the product to be found</param>
+        /// <returns>Returns the selected product</returns>
+        internal List<Product> SearchProducts(Categories category, string searchName)
+        {
+            List<Product> products = this.GetProductsByCategory(category);
+            return products.Where(product => product.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+}

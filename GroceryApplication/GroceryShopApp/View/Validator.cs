@@ -1,7 +1,18 @@
 ﻿namespace GroceryShopApp.View
 {
+    /// <summary>
+    /// Validates the fields for appropriate data usage.
+    /// </summary>
     internal static class Validator
     {
+        /// <summary>
+        /// Validates the user entered registering details.
+        /// </summary>
+        /// <param name="fullName">Full name of the user</param>
+        /// <param name="userName">Unique username of the user</param>
+        /// <param name="phone">Phone number of the user</param>
+        /// <param name="password">Password of the user</param>
+        /// <returns>Returns whether the details entered are valid or not</returns>
         internal static bool ValidateSignupFields(string? fullName, string? userName, string? phone, string? password)
         {
             if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(phone) || string.IsNullOrWhiteSpace(password))
@@ -22,6 +33,12 @@
             return true;
         }
 
+        /// <summary>
+        ///  Validates the user entered log-in details.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <param name="password">Password of the user</param>
+        /// <returns>Returns whether the details entered are valid or not</returns>
         internal static bool ValidateLoginFields(string? userName, string? password)
         {
             if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))

@@ -2,17 +2,28 @@
 
 namespace GroceryShopApp.View
 {
+    /// <summary>
+    /// Authenticates the user by fetching the details and displays appropritate messages.
+    /// </summary>
     internal class UserAuth
     {
         private readonly UserServices _userServices;
         private readonly MainMenu _mainMenu;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserAuth"/> class.
+        /// </summary>
+        /// <param name="userServices">Services of the user</param>
+        /// <param name="mainMenu">Main menu of the application</param>
         public UserAuth(UserServices userServices, MainMenu mainMenu)
         {
             this._userServices = userServices;
             this._mainMenu = mainMenu;
         }
 
+        /// <summary>
+        /// Retrieved the user credentials for signing up and displays appropriate message.
+        /// </summary>
         public void Register()
         {
             Console.Write($@"
@@ -51,6 +62,9 @@ namespace GroceryShopApp.View
             ConsoleHelper.CleanConsole();
         }
 
+        /// <summary>
+        /// Retrieved the log-in credentials from user and displays appropriate message.
+        /// </summary>
         internal void Login()
         {
             Console.Write($@"
@@ -73,7 +87,7 @@ namespace GroceryShopApp.View
 
             if (this._userServices.UserExists(userName!, password!))
             {
-                ConsoleHelper.WriteColored("Logged In", ConsoleColor.Green);
+                ConsoleHelper.WriteColored("\nLogged In", ConsoleColor.Green);
                 Thread.Sleep(1000);
                 this._mainMenu.AssignCurrentUser(userName!);
                 Console.Clear();

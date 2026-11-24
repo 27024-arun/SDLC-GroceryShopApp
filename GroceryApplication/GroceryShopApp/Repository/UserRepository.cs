@@ -3,6 +3,9 @@ using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Repository
 {
+    /// <summary>
+    /// Handles the storage and retrieval of user data to and from files.
+    /// </summary>
     internal class UserRepository
     {
         private readonly List<User> _users = new List<User>();
@@ -13,18 +16,32 @@ namespace GroceryShopApp.Repository
             WriteIndented = true,
         };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserRepository"/> class.
+        /// </summary>
+        /// <param name="filePath">Path where the user data-file is located</param>
         public UserRepository(string filePath)
         {
             this._filePath = filePath;
             this._users = this.LoadAll();
         }
 
+        /// <summary>
+        /// Adds the user data to the repository.
+        /// </summary>
+        /// <param name="user">Datas of user</param>
         internal void AddUser(User user)
         {
             this._users.Add(user);
             this.WriteAll();
         }
 
+        /// <summary>
+        /// Checks whether the user data already exists in repository and returns true if it exists and vice-versa.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <param name="phone">Phone number of the user</param>
+        /// <returns>Returns whether the user already exits or not</returns>
         internal bool IsUserAlreadyExists(string userName, string phone)
         {
             if (this._users.Any(user => user.UserName == userName || user.Phone == phone))
@@ -37,6 +54,12 @@ namespace GroceryShopApp.Repository
             }
         }
 
+        /// <summary>
+        /// Checks whether the user has already signed up or not.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <param name="password">Password of the user</param>
+        /// <returns>Returns true is user already signed up or vice-versa.</returns>
         internal bool IsRegisteredUser(string userName, string password)
         {
             if (this._users.Any(user => user.UserName == userName && user.Password == password))
@@ -49,6 +72,12 @@ namespace GroceryShopApp.Repository
             }
         }
 
+        /// <summary>
+        /// Retrieves a particular user details from the repository.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <param name="password">Password of the user</param>
+        /// <returns>Returns the details of the user</returns>
         internal User? GetUser(string userName, string password)
         {
             return this._users.FirstOrDefault(user => user.UserName == userName && user.Password == password);
