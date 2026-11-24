@@ -1,4 +1,4 @@
-﻿namespace GroceryShopApp.View
+﻿namespace GroceryShopApp.Services
 {
     /// <summary>
     /// Validates the fields for appropriate data usage.

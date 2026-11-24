@@ -28,5 +28,11 @@
         /// </summary>
         /// <value>Password of user</value>
         public string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user is admin or not.
+        /// </summary>
+        /// <value>True if the user is admin or vice-versa</value>
+        public bool IsAdmin { get; set; } = false;
     }
 }

@@ -15,7 +15,7 @@
         /// Gets or sets the price of the product.
         /// </summary>
         /// <value>Price of product</value>
-        public int Price { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
         /// Gets or sets the category of the product.

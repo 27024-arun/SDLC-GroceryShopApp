@@ -1,4 +1,6 @@
-﻿namespace GroceryShopApp.View
+﻿using GroceryShopApp.Services;
+
+namespace GroceryShopApp.View
 {
     /// <summary>
     /// Enables the admin to enter details to login.

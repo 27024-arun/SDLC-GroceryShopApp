@@ -1,4 +1,5 @@
-﻿using GroceryShopApp.Services;
+﻿using System.Text;
+using GroceryShopApp.Services;
 
 namespace GroceryShopApp.View
 {
@@ -41,7 +42,7 @@ namespace GroceryShopApp.View
             string? phone = Console.ReadLine();
 
             Console.Write("Enter Password [Alpha-numeric]: ");
-            string? password = Console.ReadLine();
+            string? password = this.ReadMaskedPassword();
 
             if (!Validator.ValidateSignupFields(fullName, userName, phone, password))
             {
@@ -76,7 +77,7 @@ namespace GroceryShopApp.View
             string? userName = Console.ReadLine();
 
             Console.Write("Enter Password [Alpha-numeric]: ");
-            string? password = Console.ReadLine();
+            string? password = this.ReadMaskedPassword();
 
             if (!Validator.ValidateLoginFields(userName, password))
             {
@@ -99,6 +100,50 @@ namespace GroceryShopApp.View
                 Thread.Sleep(1300);
                 Console.Clear();
             }
+        }
+
+        /// <summary>
+        /// Reads password input from the console, allowing the user to toggle visibility using the Tab key.
+        /// </summary>
+        /// <returns>The plain-text password entered by the user.</returns>
+        private string ReadMaskedPassword()
+        {
+            StringBuilder password = new StringBuilder();
+            bool isHidden = true;
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                else if (keyInfo.Key == ConsoleKey.Tab)
+                {
+                    isHidden = !isHidden;
+                    for (int i = 0; i < password.Length; i++)
+                    {
+                        Console.Write("\b \b");
+                    }
+
+                    Console.Write(isHidden ? new string('*', password.Length) : password.ToString());
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (password.Length > 0)
+                    {
+                        password.Remove(password.Length - 1, 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                else if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    password.Append(keyInfo.KeyChar);
+                    Console.Write(isHidden ? '*' : keyInfo.KeyChar);
+                }
+            }
+
+            return password.ToString();
         }
     }
 }
