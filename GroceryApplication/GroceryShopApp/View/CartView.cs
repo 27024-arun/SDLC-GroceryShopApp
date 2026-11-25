@@ -69,7 +69,7 @@ Enter Choice: ");
             switch (userChoice)
             {
                 case ConsoleKey.C:
-                    // this.Checkout(userName);
+                    this.Checkout(userName);
                     break;
                 case ConsoleKey.B:
                     return;
@@ -78,6 +78,117 @@ Enter Choice: ");
                     ConsoleHelper.CleanConsole();
                     break;
             }
+        }
+
+        /// <summary>
+        /// Handles the checkout process and retrieves delivery details.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        private void Checkout(string userName)
+        {
+            string deliveryAddress;
+
+            while (true)
+            {
+                Console.Write("\nEnter delivery address: ");
+                deliveryAddress = Console.ReadLine() ?? string.Empty;
+
+                string validatorMessage = Validator.ValidateDeliveryAddress(deliveryAddress);
+
+                if (validatorMessage != "passed")
+                {
+                    ConsoleHelper.WriteErrorMessage($"\n{validatorMessage}\n");
+                    continue;
+                }
+
+                deliveryAddress = deliveryAddress.Trim();
+                break;
+            }
+
+            string deliveryTime;
+
+            while (true)
+            {
+                Console.Write("\nEnter delivery time (HH:mm) [08:00 - 22:00]: ");
+                deliveryTime = Console.ReadLine() ?? string.Empty;
+
+                string validatorMessage = Validator.ValidateDeliveryTime(deliveryTime);
+
+                if (validatorMessage != "passed")
+                {
+                    ConsoleHelper.WriteErrorMessage($"\n{validatorMessage}\n");
+                    continue;
+                }
+
+                deliveryTime = deliveryTime.Trim();
+                break;
+            }
+
+            List<Cart> carts = this._cartServices.GetCart(userName);
+            decimal totalAmount = this._cartServices.GetCartTotal(userName);
+
+            Console.WriteLine(@"
+==================================
+           ORDER SUMMARY
+==================================");
+
+            foreach (Cart cart in carts)
+            {
+                Console.WriteLine($@"
+Product: {cart.Product.Name}
+Price: ₹{cart.Product.Price}
+Quantity: {cart.CartQuantity}
+Subtotal: ₹{cart.Product.Price * cart.CartQuantity}");
+            }
+
+            Console.WriteLine($@"
+Delivery Address: {deliveryAddress}
+Delivery Time: {deliveryTime}
+
+==================================
+Total Amount: ₹{totalAmount}
+==================================");
+
+            Console.Write("\nConfirm Order? [Y/N]: ");
+            ConsoleKey confirmation = Console.ReadKey().Key;
+            Console.WriteLine();
+
+            if (confirmation != ConsoleKey.Y)
+            {
+                ConsoleHelper.WriteErrorMessage("\nOrder cancelled. Your cart has been retained.\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+
+            Order? order = this._cartServices.Checkout(
+                userName,
+                deliveryAddress,
+                deliveryTime);
+
+            if (order == null)
+            {
+                ConsoleHelper.WriteErrorMessage(
+                    "\nCheckout failed. Product stock may have changed. Please check your cart.\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+
+            ConsoleHelper.WriteSuccessMessage("\nOrder placed successfully!\n");
+
+            Console.WriteLine($@"
+==================================
+          ORDER CONFIRMED
+==================================
+Order ID: {order.OrderId}
+Customer: {order.UserName}
+Delivery Address: {order.DeliveryAddress}
+Delivery Time: {order.DeliveryTime}
+Order Date: {order.OrderDate}
+
+Total Amount: ₹{order.TotalAmount}
+==================================");
+
+            ConsoleHelper.CleanConsole();
         }
     }
 }

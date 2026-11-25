@@ -70,6 +70,16 @@ namespace GroceryShopApp.Repository
         }
 
         /// <summary>
+        /// Checks whether the username exists or not.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <returns>Returns true if username exists or vice-versa</returns>
+        internal bool IsUserNameValid(string userName)
+        {
+            return this._users.Any(user => user.UserName == userName);
+        }
+
+        /// <summary>
         /// Identifies whether the admin is already present or not.
         /// </summary>
         /// <returns>Returns true if admin is present or not.</returns>

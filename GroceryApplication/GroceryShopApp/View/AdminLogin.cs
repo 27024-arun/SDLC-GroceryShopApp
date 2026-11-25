@@ -1,4 +1,5 @@
-﻿using GroceryShopApp.Model;
+﻿using System.Text;
+using GroceryShopApp.Model;
 using GroceryShopApp.Services;
 
 namespace GroceryShopApp.View
@@ -9,14 +10,17 @@ namespace GroceryShopApp.View
     internal class AdminLogin
     {
         private readonly AdminServices _adminServices;
+        private readonly UserServices _userServices;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminLogin"/> class.
         /// </summary>
         /// <param name="adminServices">Services of admin.</param>
-        public AdminLogin(AdminServices adminServices)
+        /// <param name="userServices">Services of user.</param>
+        public AdminLogin(AdminServices adminServices, UserServices userServices)
         {
             this._adminServices = adminServices;
+            this._userServices = userServices;
         }
 
         /// <summary>
@@ -33,8 +37,9 @@ namespace GroceryShopApp.View
             Console.Write("Enter admin user-name: ");
             string? userName = Console.ReadLine();
 
-            Console.Write("Enter admin password [Alpha-numeric]: ");
-            string? password = Console.ReadLine();
+            Console.Write(@"Enter admin password [4-20 character with letter and digits]
+[Press TAB key to view/hide the password]: ");
+            string? password = this.ReadMaskedPassword();
 
             string validatorMessage = Validator.ValidateLoginFields(userName, password);
             if (validatorMessage != "passed")
@@ -44,18 +49,33 @@ namespace GroceryShopApp.View
                 return;
             }
 
-            if (!this._adminServices.IsAdmin(userName!, password!))
+            if (this._adminServices.IsAdmin(userName!, password!))
             {
-                ConsoleHelper.WriteErrorMessage("\nUser is not an admin\n");
-                ConsoleHelper.CleanConsole();
+                ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
+                Thread.Sleep(1000);
+                Console.Clear();
+                this.AdminMenu();
                 return;
             }
 
-            ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
-            Thread.Sleep(1000);
-            Console.Clear();
-
-            this.AdminMenu();
+            if (!this._userServices.IsUserAccountExists(userName!))
+            {
+                ConsoleHelper.WriteErrorMessage($"\nUsername does not exists\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+            else if (!this._userServices.UserExists(userName!, password!))
+            {
+                ConsoleHelper.WriteErrorMessage($"\nPassword is not valid\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+            else
+            {
+                ConsoleHelper.WriteErrorMessage($"\nUser is not an admin\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
         }
 
         /// <summary>
@@ -135,6 +155,50 @@ Total Amount: ₹{order.TotalAmount}
             }
 
             ConsoleHelper.CleanConsole();
+        }
+
+        /// <summary>
+        /// Reads password input from the console, allowing the user to toggle visibility using the Tab key.
+        /// </summary>
+        /// <returns>The plain-text password entered by the user.</returns>
+        private string ReadMaskedPassword()
+        {
+            StringBuilder password = new StringBuilder();
+            bool isHidden = true;
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                else if (keyInfo.Key == ConsoleKey.Tab)
+                {
+                    isHidden = !isHidden;
+                    for (int i = 0; i < password.Length; i++)
+                    {
+                        Console.Write("\b \b");
+                    }
+
+                    Console.Write(isHidden ? new string('*', password.Length) : password.ToString());
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (password.Length > 0)
+                    {
+                        password.Remove(password.Length - 1, 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                else if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    password.Append(keyInfo.KeyChar);
+                    Console.Write(isHidden ? '*' : keyInfo.KeyChar);
+                }
+            }
+
+            return password.ToString();
         }
     }
 }

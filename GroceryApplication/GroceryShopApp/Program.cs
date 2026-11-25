@@ -27,7 +27,7 @@ namespace GroceryShopApp
             CartView cartView = new CartView(cartServices);
             MainMenu mainMenu = new MainMenu(productView, cartView);
             UserAuth userAuth = new UserAuth(userServices, mainMenu);
-            AdminLogin adminLogin = new AdminLogin(adminServices);
+            AdminLogin adminLogin = new AdminLogin(adminServices, userServices);
 
             while (true)
             {

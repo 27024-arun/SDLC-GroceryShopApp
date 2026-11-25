@@ -41,7 +41,8 @@ namespace GroceryShopApp.View
             Console.Write("Enter Phone number [10 digits]: ");
             string? phone = Console.ReadLine();
 
-            Console.Write("Enter Password [4-20 character with letter and digits]: ");
+            Console.Write(@"Enter Password [4-20 character with letter and digits]
+[Press TAB key to view/hide the password]: ");
             string? password = this.ReadMaskedPassword();
 
             string validatorMessage = Validator.ValidateSignupFields(fullName, userName, phone, password);
@@ -77,7 +78,8 @@ namespace GroceryShopApp.View
             Console.Write("Enter unique user-name [4-20 letters or digits]: ");
             string? userName = Console.ReadLine();
 
-            Console.Write("Enter Password [4-20 character with letter and digits]: ");
+            Console.Write(@"Enter Password [4-20 character with letter and digits]
+[Press TAB key to view/hide the password]: ");
             string? password = this.ReadMaskedPassword();
 
             string validatorMessage = Validator.ValidateLoginFields(userName, password);
@@ -98,9 +100,18 @@ namespace GroceryShopApp.View
             }
             else
             {
-                ConsoleHelper.WriteColored($"User data not valid\nReturning to Main menu.", ConsoleColor.Red);
-                Thread.Sleep(1300);
-                Console.Clear();
+                if (!this._userServices.IsUserAccountExists(userName!))
+                {
+                    ConsoleHelper.WriteErrorMessage($"\nUsername does not exists\n");
+                    ConsoleHelper.CleanConsole();
+                    return;
+                }
+                else
+                {
+                    ConsoleHelper.WriteErrorMessage($"\nInvalid password of the user\n");
+                    ConsoleHelper.CleanConsole();
+                    return;
+                }
             }
         }
 

@@ -55,6 +55,16 @@ namespace GroceryShopApp.Services
         }
 
         /// <summary>
+        /// Checks whether the user account exists or not.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <returns>Returns whether the user name is valid or not.</returns>
+        internal bool IsUserAccountExists(string userName)
+        {
+            return this._userRepository.IsUserNameValid(userName);
+        }
+
+        /// <summary>
         /// Checks whether the user data already exists in the repository or not.
         /// </summary>
         /// <param name="userName">Unqiue username of the user</param>

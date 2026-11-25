@@ -20,7 +20,7 @@
                 return "Full-Name is invalid";
             }
 
-            if (string.IsNullOrWhiteSpace(userName) || userName.Length < 4 || userName.Length > 10)
+            if (string.IsNullOrWhiteSpace(userName) || userName.Length < 4 || userName.Length > 20)
             {
                 return $"User Name is invalid";
             }
@@ -46,7 +46,7 @@
         /// <returns>Returns whether the details entered are valid or not</returns>
         internal static string ValidateLoginFields(string? userName, string? password)
         {
-            if (string.IsNullOrWhiteSpace(userName) || userName.Length < 4 || userName.Length > 10)
+            if (string.IsNullOrWhiteSpace(userName) || userName.Length < 4 || userName.Length > 20)
             {
                 return $"User Name is invalid";
             }
