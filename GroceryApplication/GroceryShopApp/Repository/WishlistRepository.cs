@@ -1,0 +1,90 @@
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using GroceryShopApp.Model;
+
+namespace GroceryShopApp.Repository
+{
+    /// <summary>
+    /// Handles the storage and retrieval of wishlist data to and from files.
+    /// </summary>
+    internal class WishlistRepository
+    {
+        private readonly List<Cart> _wishlists = new List<Cart>();
+        private readonly string _filePath;
+
+        private readonly JsonSerializerOptions _options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            Converters = { new JsonStringEnumConverter() },
+        };
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WishlistRepository"/> class.
+        /// </summary>
+        /// <param name="filePath">Path where the wishlist data-file is located.</param>
+        public WishlistRepository(string filePath)
+        {
+            this._filePath = filePath;
+            this.LoadAll();
+        }
+
+        /// <summary>
+        /// Retrieves all wishlist products of a particular user.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <returns>List of wishlist products.</returns>
+        internal List<Cart> GetWishlist(string userName)
+        {
+            return this._wishlists.Where(item => item.UserName == userName).ToList();
+        }
+
+        /// <summary>
+        /// Adds a product to the user's wishlist.
+        /// </summary>
+        /// <param name="cart">Wishlist product details.</param>
+        internal void AddToWishlist(Cart cart)
+        {
+            Cart? existingProduct = this._wishlists.FirstOrDefault(item => item.UserName == cart.UserName && item.Product.Name == cart.Product.Name);
+            if (existingProduct == null)
+            {
+                this._wishlists.Add(cart);
+                this.WriteAll();
+            }
+        }
+
+        /// <summary>
+        /// Removes a product from the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="productName">Name of the product.</param>
+        internal void RemoveFromWishlist(string userName, string productName)
+        {
+            this._wishlists.RemoveAll(item => item.UserName == userName && item.Product.Name == productName);
+            this.WriteAll();
+        }
+
+        private void WriteAll()
+        {
+            string fileData = JsonSerializer.Serialize(this._wishlists, this._options);
+            File.WriteAllText(this._filePath, fileData);
+        }
+
+        private void LoadAll()
+        {
+            if (!File.Exists(this._filePath))
+            {
+                this.WriteAll();
+                return;
+            }
+
+            string fileData = File.ReadAllText(this._filePath);
+            if (string.IsNullOrWhiteSpace(fileData))
+            {
+                return;
+            }
+
+            List<Cart> wishlists = JsonSerializer.Deserialize<List<Cart>>(fileData, this._options) ?? new List<Cart>();
+            this._wishlists.AddRange(wishlists);
+        }
+    }
+}

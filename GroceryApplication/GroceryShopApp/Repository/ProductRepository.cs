@@ -10,7 +10,6 @@ namespace GroceryShopApp.Repository
     internal class ProductRepository
     {
         private readonly List<Product> _products = new List<Product>();
-
         private readonly string _filePath;
 
         private readonly JsonSerializerOptions _options = new JsonSerializerOptions
@@ -38,6 +37,49 @@ namespace GroceryShopApp.Repository
             return this._products.ToList();
         }
 
+        /// <summary>
+        /// Updates the stock quantity of a purchased product.
+        /// </summary>
+        /// <param name="productName">Name of the product.</param>
+        /// <param name="quantity">Quantity to be reduced.</param>
+        internal void UpdateProductStock(string productName, int quantity)
+        {
+            Product? product = this._products.FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
+            if (product != null && quantity > 0 && product.Quantity >= quantity)
+            {
+                product.Quantity -= quantity;
+                this.WriteAll();
+            }
+        }
+
+        /// <summary>
+        /// Sets the available stock quantity of a product.
+        /// </summary>
+        /// <param name="productName">Name of the product.</param>
+        /// <param name="quantity">New stock quantity.</param>
+        /// <returns>Returns whether the stock was updated or not.</returns>
+        internal bool SetProductStock(string productName, int quantity)
+        {
+            Product? product = this._products.FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
+            if (product == null || quantity < 0)
+            {
+                return false;
+            }
+
+            product.Quantity = quantity;
+            this.WriteAll();
+            return true;
+        }
+
+        /// <summary>
+        /// Retrieves products whose stock is at or below the low-stock limit.
+        /// </summary>
+        /// <returns>List of low-stock products.</returns>
+        internal List<Product> GetLowStockProducts()
+        {
+            return this._products.Where(product => product.Quantity <= 5).ToList();
+        }
+
         private void WriteAll()
         {
             string fileData = JsonSerializer.Serialize(this._products, this._options);
@@ -62,7 +104,6 @@ namespace GroceryShopApp.Repository
             }
 
             List<Product> products = JsonSerializer.Deserialize<List<Product>>(fileData, this._options) ?? new List<Product>();
-
             if (products.Count == 0)
             {
                 this._products.AddRange(this.GetDefaultProducts());
@@ -77,95 +118,16 @@ namespace GroceryShopApp.Repository
         {
             return new List<Product>
             {
-                new Product
-                {
-                    Name = "Carrot (1 kg)",
-                    Price = 60,
-                    Category = Categories.Vegetable,
-                    Quantity = 50,
-                    ImageFile = "carrot.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Tomato (1 kg)",
-                    Price = 40,
-                    Category = Categories.Vegetable,
-                    Quantity = 50,
-                    ImageFile = "tomato.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Potato (1 kg)",
-                    Price = 35,
-                    Category = Categories.Vegetable,
-                    Quantity = 80,
-                    ImageFile = "potato.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Onion (1 kg)",
-                    Price = 45,
-                    Category = Categories.Vegetable,
-                    Quantity = 0,
-                    ImageFile = "onion.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Apple (1 kg)",
-                    Price = 180,
-                    Category = Categories.Fruit,
-                    Quantity = 30,
-                    ImageFile = "apple.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Banana (1 dozen)",
-                    Price = 60,
-                    Category = Categories.Fruit,
-                    Quantity = 40,
-                    ImageFile = "banana.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Orange (1 kg)",
-                    Price = 90,
-                    Category = Categories.Fruit,
-                    Quantity = 25,
-                    ImageFile = "orange.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Frying Pan (1 pc)",
-                    Price = 750,
-                    Category = Categories.Cookware,
-                    Quantity = 10,
-                    ImageFile = "frying-pan.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Pressure Cooker (1 pc)",
-                    Price = 1800,
-                    Category = Categories.Cookware,
-                    Quantity = 5,
-                    ImageFile = "pressure-cooker.jpg",
-                },
-
-                new Product
-                {
-                    Name = "Ladle (1 pc)",
-                    Price = 120,
-                    Category = Categories.Cookware,
-                    Quantity = 1,
-                    ImageFile = "ladle.jpg",
-                },
+                new Product { Name = "Carrot (1 kg)", Price = 60, Category = Categories.Vegetable, Quantity = 50, ImageFile = "carrot.jpg" },
+                new Product { Name = "Tomato (1 kg)", Price = 40, Category = Categories.Vegetable, Quantity = 50, ImageFile = "tomato.jpg" },
+                new Product { Name = "Potato (1 kg)", Price = 35, Category = Categories.Vegetable, Quantity = 80, ImageFile = "potato.jpg" },
+                new Product { Name = "Onion (1 kg)", Price = 45, Category = Categories.Vegetable, Quantity = 0, ImageFile = "onion.jpg" },
+                new Product { Name = "Apple (1 kg)", Price = 180, Category = Categories.Fruit, Quantity = 30, ImageFile = "apple.jpg" },
+                new Product { Name = "Banana (1 dozen)", Price = 60, Category = Categories.Fruit, Quantity = 40, ImageFile = "banana.jpg" },
+                new Product { Name = "Orange (1 kg)", Price = 90, Category = Categories.Fruit, Quantity = 25, ImageFile = "orange.jpg" },
+                new Product { Name = "Frying Pan (1 pc)", Price = 750, Category = Categories.Cookware, Quantity = 10, ImageFile = "fryingpan.jpg" },
+                new Product { Name = "Pressure Cooker (1 pc)", Price = 1800, Category = Categories.Cookware, Quantity = 5, ImageFile = "pressurecooker.jpg" },
+                new Product { Name = "Ladle (1 pc)", Price = 120, Category = Categories.Cookware, Quantity = 1, ImageFile = "ladle.jpg" },
             };
         }
     }

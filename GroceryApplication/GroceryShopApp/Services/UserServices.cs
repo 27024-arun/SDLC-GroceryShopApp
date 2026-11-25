@@ -39,16 +39,29 @@ namespace GroceryShopApp.Services
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(password));
             string hashedPassword = Convert.ToHexString(hash).ToLowerInvariant();
 
+            bool isAdminPresent = this._userRepository.IsAdminPresent();
+
             User user = new User
             {
                 Name = fullName,
                 UserName = userName,
                 Phone = phone,
                 Password = hashedPassword,
+                IsAdmin = isAdminPresent ? false : true,
             };
 
             this._userRepository.AddUser(user);
             return true;
+        }
+
+        /// <summary>
+        /// Checks whether the user account exists or not.
+        /// </summary>
+        /// <param name="userName">Unique username of the user</param>
+        /// <returns>Returns whether the user name is valid or not.</returns>
+        internal bool IsUserAccountExists(string userName)
+        {
+            return this._userRepository.IsUserNameValid(userName);
         }
 
         /// <summary>

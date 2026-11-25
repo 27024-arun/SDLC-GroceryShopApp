@@ -1,4 +1,6 @@
-﻿using GroceryShopApp.Services;
+﻿using System.Text;
+using GroceryShopApp.Model;
+using GroceryShopApp.Services;
 
 namespace GroceryShopApp.View
 {
@@ -7,42 +9,271 @@ namespace GroceryShopApp.View
     /// </summary>
     internal class AdminLogin
     {
+        private readonly AdminServices _adminServices;
+        private readonly UserServices _userServices;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminLogin"/> class.
+        /// </summary>
+        /// <param name="adminServices">Services of admin.</param>
+        /// <param name="userServices">Services of user.</param>
+        public AdminLogin(AdminServices adminServices, UserServices userServices)
+        {
+            this._adminServices = adminServices;
+            this._userServices = userServices;
+        }
+
         /// <summary>
         /// Asks the user for admin credentials to login.
         /// </summary>
         internal void Login()
         {
-            Console.Write($@"
+            Console.Write(@"
 ==================================
           ADMIN LOG-IN
 ==================================
 ");
+
             Console.Write("Enter admin user-name: ");
             string? userName = Console.ReadLine();
 
-            Console.Write("Enter admin password [Alpha-numeric]: ");
-            string? password = Console.ReadLine();
+            Console.Write(@"Enter admin password [4-20 character with letter and digits]
+[Press TAB key to view/hide the password]: ");
+            string? password = this.ReadMaskedPassword();
 
-            if (!Validator.ValidateLoginFields(userName, password))
+            string validatorMessage = Validator.ValidateLoginFields(userName, password);
+            if (validatorMessage != "passed")
             {
-                ConsoleHelper.WriteErrorMessage("\nInvalid data\n");
+                ConsoleHelper.WriteErrorMessage($"\n{validatorMessage}\n");
                 ConsoleHelper.CleanConsole();
                 return;
             }
 
-            if (userName == "admin" && password == "password123")
+            if (this._adminServices.IsAdmin(userName!, password!))
             {
+                ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
+                this.DisplayLowStockProducts();
+                Thread.Sleep(1000);
                 this.AdminMenu();
+                return;
             }
+
+            if (!this._userServices.IsUserAccountExists(userName!))
+            {
+                ConsoleHelper.WriteErrorMessage("\nUsername does not exists\n");
+            }
+            else if (!this._userServices.UserExists(userName!, password!))
+            {
+                ConsoleHelper.WriteErrorMessage("\nPassword is not valid\n");
+            }
+            else
+            {
+                ConsoleHelper.WriteErrorMessage("\nUser is not an admin\n");
+            }
+
+            ConsoleHelper.CleanConsole();
         }
 
+        /// <summary>
+        /// Displays the products whose stock is low.
+        /// </summary>
+        internal void DisplayLowStockProducts()
+        {
+            List<Product> products = this._adminServices.GetLowStockProducts();
+
+            if (products.Count == 0)
+            {
+                ConsoleHelper.WriteSuccessMessage("\nAll product stocks are sufficient.\n");
+                return;
+            }
+
+            ConsoleHelper.WriteErrorMessage(@"
+==================================
+        LOW STOCK ALERT
+==================================
+");
+
+            foreach (Product product in products)
+            {
+                ConsoleHelper.WriteErrorMessage($"Product: {product.Name} | Remaining Stock: {product.Quantity}\n");
+            }
+
+            ConsoleHelper.WriteErrorMessage("==================================\n");
+        }
+
+        /// <summary>
+        /// Displays the menu options for the admin.
+        /// </summary>
         internal void AdminMenu()
         {
-            Console.Write($@"
+            while (true)
+            {
+                Console.Write(@"
 ==================================
           ADMIN MENU
 ==================================
-");
+[V]iew Customer Orders
+[S]tock Management
+[L]ogout
+
+Enter Choice: ");
+
+                ConsoleKey userChoice = Console.ReadKey().Key;
+                Console.Clear();
+
+                switch (userChoice)
+                {
+                    case ConsoleKey.V:
+                        this.DisplayOrders();
+                        break;
+                    case ConsoleKey.S:
+                        this.UpdateStock();
+                        break;
+                    case ConsoleKey.L:
+                        ConsoleHelper.WriteColored("\nLogging out...", ConsoleColor.Yellow);
+                        Thread.Sleep(1000);
+                        Console.Clear();
+                        return;
+                    default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Displays all products and allows the admin to update stock using the serial number.
+        /// </summary>
+        private void UpdateStock()
+        {
+            List<Product> products = this._adminServices.GetAllProducts();
+            if (products.Count == 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nNo products available.\n");
+                return;
+            }
+
+            Console.WriteLine("\n========== PRODUCT STOCK ==========\n");
+            Console.WriteLine("{0,-10} {1,-25} {2,-15}", "S.No", "Product Name", "Available Stock");
+            Console.WriteLine("--------------------------------------------------");
+            for (int i = 0; i < products.Count; i++)
+            {
+                Console.WriteLine("{0,-10} {1,-25} {2,-15}", i + 1, products[i].Name, products[i].Quantity);
+            }
+
+            Console.WriteLine("\nEnter the serial number of the product to update:");
+            int serialNumber;
+            while (!int.TryParse(Console.ReadLine(), out serialNumber) || serialNumber < 1 || serialNumber > products.Count)
+            {
+                ConsoleHelper.WriteErrorMessage("\nEnter a valid serial number.\n");
+                Console.Write("Enter serial number: ");
+            }
+
+            Product selectedProduct = products[serialNumber - 1];
+            int quantity;
+            Console.Write($"\nEnter the new stock quantity for {selectedProduct.Name}: ");
+            while (!int.TryParse(Console.ReadLine(), out quantity) || quantity < 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nEnter a valid stock quantity.\n");
+                Console.Write("Enter new stock quantity: ");
+            }
+
+            this._adminServices.UpdateProductStock(selectedProduct.Name, quantity);
+            ConsoleHelper.WriteSuccessMessage($"\nStock updated successfully for {selectedProduct.Name}.\n");
+        }
+
+        /// <summary>
+        /// Displays all customer orders.
+        /// </summary>
+        private void DisplayOrders()
+        {
+            List<Order> orders = this._adminServices.GetAllOrders();
+
+            Console.WriteLine(@"
+==================================
+        CUSTOMER ORDERS
+==================================");
+
+            if (orders.Count == 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nNo orders found.\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+
+            foreach (Order order in orders)
+            {
+                Console.WriteLine($@"
+==================================
+Order ID: {order.OrderId}
+Customer: {order.UserName}
+Order Date: {order.OrderDate}
+Delivery Address: {order.DeliveryAddress}
+Delivery Date: {order.DeliveryDate}
+Delivery Time: {order.DeliveryTime}");
+
+                foreach (OrderItem item in order.Items)
+                {
+                    Console.WriteLine($@"
+Product: {item.ProductName}
+Price: ₹{item.Price}
+Quantity: {item.Quantity}
+Subtotal: ₹{item.SubTotal}");
+                }
+
+                Console.WriteLine($@"
+Total Amount: ₹{order.TotalAmount}
+==================================");
+            }
+
+            ConsoleHelper.CleanConsole();
+        }
+
+        /// <summary>
+        /// Reads password input from the console, allowing the user to toggle visibility using the Tab key.
+        /// </summary>
+        /// <returns>The plain-text password entered by the user.</returns>
+        private string ReadMaskedPassword()
+        {
+            StringBuilder password = new StringBuilder();
+            bool isHidden = true;
+
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                else if (keyInfo.Key == ConsoleKey.Tab)
+                {
+                    isHidden = !isHidden;
+
+                    for (int i = 0; i < password.Length; i++)
+                    {
+                        Console.Write("\b \b");
+                    }
+
+                    Console.Write(isHidden ? new string('*', password.Length) : password.ToString());
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (password.Length > 0)
+                    {
+                        password.Remove(password.Length - 1, 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                else if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    password.Append(keyInfo.KeyChar);
+                    Console.Write(isHidden ? '*' : keyInfo.KeyChar);
+                }
+            }
+
+            return password.ToString();
         }
     }
 }

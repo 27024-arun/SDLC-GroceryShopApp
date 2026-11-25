@@ -9,20 +9,30 @@ namespace GroceryShopApp.View
     internal class ProductView
     {
         private readonly ProductServices _productServices;
+        private readonly CartServices _cartServices;
+        private readonly WishlistServices _wishlistServices;
+        private readonly CartView _cartView;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductView"/> class.
         /// </summary>
         /// <param name="productServices">Services of the product.</param>
-        public ProductView(ProductServices productServices)
+        /// <param name="cartServices">Services of the cart.</param>
+        /// <param name="wishlistServices">Services of the wishlist.</param>
+        /// <param name="cartView">View operations of the cart.</param>
+        public ProductView(ProductServices productServices, CartServices cartServices, WishlistServices wishlistServices, CartView cartView)
         {
             this._productServices = productServices;
+            this._cartServices = cartServices;
+            this._wishlistServices = wishlistServices;
+            this._cartView = cartView;
         }
 
         /// <summary>
         /// Displays the product menu and fetches the user choice to redirect.
         /// </summary>
-        internal void DisplayProductMenu()
+        /// <param name="userName">Username of the current user.</param>
+        internal void DisplayProductMenu(string userName)
         {
             while (true)
             {
@@ -39,38 +49,42 @@ Enter Choice: ");
 
                 ConsoleKey userChoice = Console.ReadKey().Key;
                 Console.Clear();
+
                 switch (userChoice)
                 {
                     case ConsoleKey.V:
-                        this.DisplayProducts(Categories.Vegetable);
+                        this.DisplayProducts(Categories.Vegetable, userName);
                         break;
                     case ConsoleKey.F:
-                        this.DisplayProducts(Categories.Fruit);
+                        this.DisplayProducts(Categories.Fruit, userName);
                         break;
                     case ConsoleKey.C:
-                        this.DisplayProducts(Categories.Cookware);
+                        this.DisplayProducts(Categories.Cookware, userName);
                         break;
                     case ConsoleKey.B:
                         return;
                     default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
                         break;
                 }
             }
         }
 
-        private void DisplayProducts(Categories category)
+        /// <summary>
+        /// Displays products belonging to the selected category.
+        /// </summary>
+        /// <param name="category">Selected product category.</param>
+        /// <param name="userName">Username of the current user.</param>
+        private void DisplayProducts(Categories category, string userName)
         {
             List<Product> products = this._productServices.GetProductsByCategory(category);
-
             while (true)
             {
                 Console.WriteLine($@"
 ==================================
             {category.ToString().ToUpper()}
 ==================================");
-
                 this.DisplayProductList(products);
-
                 Console.Write(@"
 [S]earch Product
 [B]ack to Categories
@@ -113,10 +127,14 @@ Enter product number to select: ");
                 }
 
                 Product selectedProduct = products[productNumber - 1];
-                this.DisplaySelectedProduct(selectedProduct);
+                this.DisplaySelectedProduct(selectedProduct, userName);
             }
         }
 
+        /// <summary>
+        /// Displays the list of products.
+        /// </summary>
+        /// <param name="products">List of products.</param>
         private void DisplayProductList(List<Product> products)
         {
             if (products.Count == 0)
@@ -128,28 +146,125 @@ Enter product number to select: ");
             for (int i = 0; i < products.Count; i++)
             {
                 Product product = products[i];
+
                 Console.WriteLine($"\n{i + 1}. Product: {product.Name}");
-                Console.WriteLine($"   Price: ₹.{product.Price}");
+                Console.WriteLine($"   Price: ₹{product.Price}");
                 Console.WriteLine(product.Quantity == 0 ? "   Status: Out of stock" : $"   Remaining Stock: {product.Quantity}");
             }
         }
 
-        private void DisplaySelectedProduct(Product product)
+        /// <summary>
+        /// Displays the selected product and performs the user's selected operation.
+        /// </summary>
+        /// <param name="product">Selected product.</param>
+        /// <param name="userName">Username of the current user.</param>
+        private void DisplaySelectedProduct(Product product, string userName)
         {
-            Console.WriteLine(@$"
+            Console.WriteLine($@"
 ==================================
         PRODUCT DETAILS
 ==================================
 Name: {product.Name}
-Price: Rs.{product.Price}
+Price: ₹{product.Price}
 Category: {product.Category}
 Stock: {product.Quantity}
 Image: {product.ImageFile}");
 
             if (product.Quantity == 0)
             {
-                ConsoleHelper.WriteErrorMessage("\nOut of stock. Cannot add this product.\n");
+                ConsoleHelper.WriteErrorMessage("\nOut of stock. Cannot purchase this product.\n");
                 return;
+            }
+
+            Console.Write(@"
+[A]dd to Cart
+[P]urchase Now
+[W]ishlist
+[B]ack
+
+Enter Choice: ");
+
+            ConsoleKey choice = Console.ReadKey().Key;
+            Console.WriteLine();
+
+            switch (choice)
+            {
+                case ConsoleKey.A:
+                    this.AddProductToCart(product, userName);
+                    break;
+                case ConsoleKey.P:
+                    this.PurchaseProduct(product, userName);
+                    break;
+                case ConsoleKey.W:
+
+                    break;
+                case ConsoleKey.B:
+                    return;
+                default:
+                    ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Adds the selected product to the user's cart.
+        /// </summary>
+        /// <param name="product">Selected product.</param>
+        /// <param name="userName">Username of the current user.</param>
+        private void AddProductToCart(Product product, string userName)
+        {
+            Console.Write("\nEnter quantity: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                return;
+            }
+
+            string result = this._cartServices.AddToCart(userName, product.Name, quantity);
+            if (result == "Product added to cart successfully.")
+            {
+                ConsoleHelper.WriteSuccessMessage($"\n{result}\n");
+            }
+            else
+            {
+                ConsoleHelper.WriteErrorMessage($"\n{result}\n");
+            }
+        }
+
+        /// <summary>
+        /// Purchases the selected product immediately or adds it to the cart.
+        /// </summary>
+        /// <param name="product">Selected product.</param>
+        /// <param name="userName">Username of the current user.</param>
+        private void PurchaseProduct(Product product, string userName)
+        {
+            Console.Write("\nEnter quantity: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                return;
+            }
+
+            Console.Write("\nDo you want to purchase now? [Y/N]: ");
+            ConsoleKey confirmation = Console.ReadKey().Key;
+            Console.WriteLine();
+            string result = this._cartServices.AddToCart(userName, product.Name, quantity);
+
+            if (result != "Product added to cart successfully.")
+            {
+                ConsoleHelper.WriteErrorMessage($"\n{result}\n");
+                return;
+            }
+
+            if (confirmation == ConsoleKey.Y)
+            {
+                this._cartView.Checkout(userName, new List<string> { product.Name });
+            }
+            else
+            {
+                ConsoleHelper.WriteSuccessMessage("\nProduct added to cart successfully.\n");
             }
         }
     }
