@@ -28,7 +28,7 @@ namespace GroceryShopApp.View
         /// </summary>
         internal void Login()
         {
-            Console.Write($@"
+            Console.Write(@"
 ==================================
           ADMIN LOG-IN
 ==================================
@@ -52,30 +52,53 @@ namespace GroceryShopApp.View
             if (this._adminServices.IsAdmin(userName!, password!))
             {
                 ConsoleHelper.WriteSuccessMessage("\nWelcome! Admin\n");
+                this.DisplayLowStockProducts();
                 Thread.Sleep(1000);
-                Console.Clear();
                 this.AdminMenu();
                 return;
             }
 
             if (!this._userServices.IsUserAccountExists(userName!))
             {
-                ConsoleHelper.WriteErrorMessage($"\nUsername does not exists\n");
-                ConsoleHelper.CleanConsole();
-                return;
+                ConsoleHelper.WriteErrorMessage("\nUsername does not exists\n");
             }
             else if (!this._userServices.UserExists(userName!, password!))
             {
-                ConsoleHelper.WriteErrorMessage($"\nPassword is not valid\n");
-                ConsoleHelper.CleanConsole();
-                return;
+                ConsoleHelper.WriteErrorMessage("\nPassword is not valid\n");
             }
             else
             {
-                ConsoleHelper.WriteErrorMessage($"\nUser is not an admin\n");
-                ConsoleHelper.CleanConsole();
+                ConsoleHelper.WriteErrorMessage("\nUser is not an admin\n");
+            }
+
+            ConsoleHelper.CleanConsole();
+        }
+
+        /// <summary>
+        /// Displays the products whose stock is low.
+        /// </summary>
+        internal void DisplayLowStockProducts()
+        {
+            List<Product> products = this._adminServices.GetLowStockProducts();
+
+            if (products.Count == 0)
+            {
+                ConsoleHelper.WriteSuccessMessage("\nAll product stocks are sufficient.\n");
                 return;
             }
+
+            ConsoleHelper.WriteErrorMessage(@"
+==================================
+        LOW STOCK ALERT
+==================================
+");
+
+            foreach (Product product in products)
+            {
+                ConsoleHelper.WriteErrorMessage($"Product: {product.Name} | Remaining Stock: {product.Quantity}\n");
+            }
+
+            ConsoleHelper.WriteErrorMessage("==================================\n");
         }
 
         /// <summary>
@@ -90,16 +113,21 @@ namespace GroceryShopApp.View
           ADMIN MENU
 ==================================
 [V]iew Customer Orders
+[S]tock Management
 [L]ogout
 
 Enter Choice: ");
 
                 ConsoleKey userChoice = Console.ReadKey().Key;
                 Console.Clear();
+
                 switch (userChoice)
                 {
                     case ConsoleKey.V:
                         this.DisplayOrders();
+                        break;
+                    case ConsoleKey.S:
+                        this.UpdateStock();
                         break;
                     case ConsoleKey.L:
                         ConsoleHelper.WriteColored("\nLogging out...", ConsoleColor.Yellow);
@@ -114,15 +142,58 @@ Enter Choice: ");
         }
 
         /// <summary>
+        /// Displays all products and allows the admin to update stock using the serial number.
+        /// </summary>
+        private void UpdateStock()
+        {
+            List<Product> products = this._adminServices.GetAllProducts();
+            if (products.Count == 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nNo products available.\n");
+                return;
+            }
+
+            Console.WriteLine("\n========== PRODUCT STOCK ==========\n");
+            Console.WriteLine("{0,-10} {1,-25} {2,-15}", "S.No", "Product Name", "Available Stock");
+            Console.WriteLine("--------------------------------------------------");
+            for (int i = 0; i < products.Count; i++)
+            {
+                Console.WriteLine("{0,-10} {1,-25} {2,-15}", i + 1, products[i].Name, products[i].Quantity);
+            }
+
+            Console.WriteLine("\nEnter the serial number of the product to update:");
+            int serialNumber;
+            while (!int.TryParse(Console.ReadLine(), out serialNumber) || serialNumber < 1 || serialNumber > products.Count)
+            {
+                ConsoleHelper.WriteErrorMessage("\nEnter a valid serial number.\n");
+                Console.Write("Enter serial number: ");
+            }
+
+            Product selectedProduct = products[serialNumber - 1];
+            int quantity;
+            Console.Write($"\nEnter the new stock quantity for {selectedProduct.Name}: ");
+            while (!int.TryParse(Console.ReadLine(), out quantity) || quantity < 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nEnter a valid stock quantity.\n");
+                Console.Write("Enter new stock quantity: ");
+            }
+
+            this._adminServices.UpdateProductStock(selectedProduct.Name, quantity);
+            ConsoleHelper.WriteSuccessMessage($"\nStock updated successfully for {selectedProduct.Name}.\n");
+        }
+
+        /// <summary>
         /// Displays all customer orders.
         /// </summary>
         private void DisplayOrders()
         {
             List<Order> orders = this._adminServices.GetAllOrders();
+
             Console.WriteLine(@"
 ==================================
         CUSTOMER ORDERS
 ==================================");
+
             if (orders.Count == 0)
             {
                 ConsoleHelper.WriteErrorMessage("\nNo orders found.\n");
@@ -138,6 +209,7 @@ Order ID: {order.OrderId}
 Customer: {order.UserName}
 Order Date: {order.OrderDate}
 Delivery Address: {order.DeliveryAddress}
+Delivery Date: {order.DeliveryDate}
 Delivery Time: {order.DeliveryTime}");
 
                 foreach (OrderItem item in order.Items)
@@ -165,9 +237,11 @@ Total Amount: ₹{order.TotalAmount}
         {
             StringBuilder password = new StringBuilder();
             bool isHidden = true;
+
             while (true)
             {
                 ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+
                 if (keyInfo.Key == ConsoleKey.Enter)
                 {
                     Console.WriteLine();
@@ -176,6 +250,7 @@ Total Amount: ₹{order.TotalAmount}
                 else if (keyInfo.Key == ConsoleKey.Tab)
                 {
                     isHidden = !isHidden;
+
                     for (int i = 0; i < password.Length; i++)
                     {
                         Console.Write("\b \b");

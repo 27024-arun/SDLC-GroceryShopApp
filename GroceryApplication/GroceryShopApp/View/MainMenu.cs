@@ -7,6 +7,7 @@
     {
         private readonly ProductView _productView;
         private readonly CartView _cartView;
+        private readonly WishlistView _wishlistView;
 
         private string _currentUser;
 
@@ -15,11 +16,13 @@
         /// </summary>
         /// <param name="productView">View level operation of the product.</param>
         /// <param name="cartView">View level operation of the cart.</param>
-        public MainMenu(ProductView productView, CartView cartView)
+        /// <param name="wishlistView">View level operation of the wishlist.</param>
+        public MainMenu(ProductView productView, CartView cartView, WishlistView wishlistView)
         {
             this._currentUser = string.Empty;
             this._productView = productView;
             this._cartView = cartView;
+            this._wishlistView = wishlistView;
         }
 
         /// <summary>
@@ -44,6 +47,8 @@
 ==================================
 [P]roducts
 [C]art Items
+[T]rack Order
+[W]ishlist
 [L]og out
 
 Enter Choice: ");
@@ -58,6 +63,12 @@ Enter Choice: ");
                         break;
                     case ConsoleKey.C:
                         this._cartView.DisplayCart(this._currentUser);
+                        break;
+                    case ConsoleKey.T:
+                        this._cartView.DisplayOrderHistory(this._currentUser);
+                        break;
+                    case ConsoleKey.W:
+                        this._wishlistView.DisplayWishlist(this._currentUser);
                         break;
                     case ConsoleKey.L:
                         this._currentUser = string.Empty;

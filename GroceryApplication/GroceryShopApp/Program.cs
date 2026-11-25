@@ -17,15 +17,19 @@ namespace GroceryShopApp
             ProductRepository productRepository = new ProductRepository("Products.json");
             CartRepository cartRepository = new CartRepository("Carts.json");
             OrderRepository orderRepository = new OrderRepository("Orders.json");
+            WishlistRepository wishlistRepository = new WishlistRepository("Wishlists.json");
 
             UserServices userServices = new UserServices(userRepository);
             ProductServices productServices = new ProductServices(productRepository);
             CartServices cartServices = new CartServices(cartRepository, productRepository, orderRepository);
+            WishlistServices wishlistServices = new WishlistServices(wishlistRepository, productRepository);
             AdminServices adminServices = new AdminServices(userRepository, productRepository, orderRepository);
 
-            ProductView productView = new ProductView(productServices, cartServices);
             CartView cartView = new CartView(cartServices);
-            MainMenu mainMenu = new MainMenu(productView, cartView);
+            WishlistView wishlistView = new WishlistView(wishlistServices, cartServices, cartView);
+            ProductView productView = new ProductView(productServices, cartServices, wishlistServices, cartView);
+
+            MainMenu mainMenu = new MainMenu(productView, cartView, wishlistView);
             UserAuth userAuth = new UserAuth(userServices, mainMenu);
             AdminLogin adminLogin = new AdminLogin(adminServices, userServices);
 

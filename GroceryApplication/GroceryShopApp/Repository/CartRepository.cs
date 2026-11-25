@@ -68,6 +68,17 @@ namespace GroceryShopApp.Repository
             this.WriteAll();
         }
 
+        /// <summary>
+        /// Removes selected products from the user's cart.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="productNames">Names of products to be removed.</param>
+        internal void RemoveCartItems(string userName, List<string> productNames)
+        {
+            this._carts.RemoveAll(cart => cart.UserName == userName && productNames.Contains(cart.Product.Name, StringComparer.OrdinalIgnoreCase));
+            this.WriteAll();
+        }
+
         private void WriteAll()
         {
             string fileData = JsonSerializer.Serialize(this._carts, this._options);

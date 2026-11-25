@@ -39,7 +39,7 @@ namespace GroceryShopApp.Services
                 return "Quantity must be greater than zero.";
             }
 
-            Product? product = this._productRepository.GetAllProducts().FirstOrDefault(item => item.Name == productName);
+            Product? product = this._productRepository.GetAllProducts().FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
             if (product == null)
             {
                 return "Product not found.";
@@ -50,7 +50,7 @@ namespace GroceryShopApp.Services
                 return "Product is out of stock.";
             }
 
-            Cart? existingCart = this._cartRepository.GetCart(userName).FirstOrDefault(item => item.Product.Name == productName);
+            Cart? existingCart = this._cartRepository.GetCart(userName).FirstOrDefault(item => item.Product.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
             int cartQuantity = quantity;
             if (existingCart != null)
             {
@@ -101,25 +101,46 @@ namespace GroceryShopApp.Services
         }
 
         /// <summary>
-        /// Processes the checkout of the user's cart.
+        /// Clears all products from the user's cart.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        internal void ClearCart(string userName)
+        {
+            this._cartRepository.RemoveCart(userName);
+        }
+
+        /// <summary>
+        /// Retrieves the order history of a particular user.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <returns>List of user orders.</returns>
+        internal List<Order> GetUserOrders(string userName)
+        {
+            return this._orderRepository.GetUserOrders(userName);
+        }
+
+        /// <summary>
+        /// Processes the checkout of selected products from the user's cart.
         /// </summary>
         /// <param name="userName">Username of the user.</param>
         /// <param name="deliveryAddress">Delivery address.</param>
-        /// <param name="deliveryTime">Delivery time.</param>
+        /// <param name="deliveryDate">Delivery date.</param>
+        /// <param name="deliveryTime">Delivery time slot.</param>
+        /// <param name="productNames">Names of products to purchase.</param>
         /// <returns>Returns the order after successful checkout.</returns>
-        internal Order? Checkout(string userName, string deliveryAddress, string deliveryTime)
+        internal Order? Checkout(string userName, string deliveryAddress, string deliveryDate, string deliveryTime, List<string> productNames)
         {
-            List<Cart> carts = this.GetCart(userName);
+            List<Cart> carts = this.GetCart(userName).Where(cart => productNames.Contains(cart.Product.Name, StringComparer.OrdinalIgnoreCase)).ToList();
             if (carts.Count == 0)
             {
                 return null;
             }
 
             List<Product> products = this._productRepository.GetAllProducts();
+
             foreach (Cart cart in carts)
             {
-                Product? product = products.FirstOrDefault(item => item.Name == cart.Product.Name);
-
+                Product? product = products.FirstOrDefault(item => item.Name.Equals(cart.Product.Name, StringComparison.OrdinalIgnoreCase));
                 if (product == null || product.Quantity < cart.CartQuantity)
                 {
                     return null;
@@ -131,6 +152,7 @@ namespace GroceryShopApp.Services
                 OrderId = this._orderRepository.GetAllOrders().Select(item => item.OrderId).DefaultIfEmpty(0).Max() + 1,
                 UserName = userName,
                 DeliveryAddress = deliveryAddress,
+                DeliveryDate = deliveryDate,
                 DeliveryTime = deliveryTime,
                 OrderDate = DateTime.Now,
                 TotalAmount = 0,
@@ -145,6 +167,7 @@ namespace GroceryShopApp.Services
                     Quantity = cart.CartQuantity,
                     SubTotal = cart.Product.Price * cart.CartQuantity,
                 };
+
                 order.Items.Add(orderItem);
                 order.TotalAmount += orderItem.SubTotal;
             }
@@ -155,7 +178,7 @@ namespace GroceryShopApp.Services
             }
 
             this._orderRepository.AddOrder(order);
-            this._cartRepository.RemoveCart(userName);
+            this._cartRepository.RemoveCartItems(userName, productNames);
             return order;
         }
     }

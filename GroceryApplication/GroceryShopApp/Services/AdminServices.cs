@@ -6,7 +6,7 @@ using GroceryShopApp.Repository;
 namespace GroceryShopApp.Services
 {
     /// <summary>
-    /// Handles the business logics for admin operations.
+    /// Handles the business logics for the admin.
     /// </summary>
     internal class AdminServices
     {
@@ -37,13 +37,7 @@ namespace GroceryShopApp.Services
         {
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(password));
             string hashedPassword = Convert.ToHexString(hash).ToLowerInvariant();
-
-            if (this._userRepository.IsUserAdmin(userName, hashedPassword))
-            {
-                return true;
-            }
-
-            return false;
+            return this._userRepository.IsUserAdmin(userName, hashedPassword);
         }
 
         /// <summary>
@@ -53,6 +47,40 @@ namespace GroceryShopApp.Services
         internal List<Order> GetAllOrders()
         {
             return this._orderRepository.GetAllOrders();
+        }
+
+        /// <summary>
+        /// Retrieves products whose stock is low.
+        /// </summary>
+        /// <returns>List of low-stock products.</returns>
+        internal List<Product> GetLowStockProducts()
+        {
+            return this._productRepository.GetLowStockProducts();
+        }
+
+        /// <summary>
+        /// Updates the stock quantity of a product.
+        /// </summary>
+        /// <param name="productName">Name of the product.</param>
+        /// <param name="quantity">New stock quantity.</param>
+        /// <returns>Returns whether the stock was updated or not.</returns>
+        internal bool UpdateProductStock(string productName, int quantity)
+        {
+            if (string.IsNullOrWhiteSpace(productName) || quantity < 0)
+            {
+                return false;
+            }
+
+            return this._productRepository.SetProductStock(productName.Trim(), quantity);
+        }
+
+        /// <summary>
+        /// Gets all available products.
+        /// </summary>
+        /// <returns>List of all products.</returns>
+        internal List<Product> GetAllProducts()
+        {
+            return this._productRepository.GetAllProducts();
         }
     }
 }

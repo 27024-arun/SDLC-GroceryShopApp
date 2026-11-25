@@ -33,9 +33,9 @@ namespace GroceryShopApp.Services
         /// <summary>
         /// Handles the searching of products and returns the selected product.
         /// </summary>
-        /// <param name="category">Category of the product to be found</param>
-        /// <param name="searchName">Name of the product to be found</param>
-        /// <returns>Returns the selected product</returns>
+        /// <param name="category">Category of the product to be found.</param>
+        /// <param name="searchName">Name of the product to be found.</param>
+        /// <returns>Returns the selected product.</returns>
         internal List<Product> SearchProducts(Categories category, string searchName)
         {
             List<Product> products = this.GetProductsByCategory(category);

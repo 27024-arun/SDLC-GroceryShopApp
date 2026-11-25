@@ -24,6 +24,12 @@
         public string DeliveryAddress { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the delivery date.
+        /// </summary>
+        /// <value>Delivery date</value>
+        public string DeliveryDate { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the delivery time.
         /// </summary>
         /// <value>Delivery time</value>

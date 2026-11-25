@@ -25,66 +25,125 @@ namespace GroceryShopApp.View
         /// <param name="userName">Username of the user.</param>
         internal void DisplayCart(string userName)
         {
-            List<Cart> carts = this._cartServices.GetCart(userName);
+            while (true)
+            {
+                List<Cart> carts = this._cartServices.GetCart(userName);
 
-            Console.WriteLine(@"
+                Console.WriteLine(@"
 ==================================
             YOUR CART
 ==================================");
 
-            if (carts.Count == 0)
-            {
-                ConsoleHelper.WriteErrorMessage("\nYour cart is empty.\n");
-                ConsoleHelper.CleanConsole();
-                return;
-            }
+                if (carts.Count == 0)
+                {
+                    ConsoleHelper.WriteErrorMessage("\nYour cart is empty.\n");
+                    ConsoleHelper.CleanConsole();
+                    return;
+                }
 
-            for (int i = 0; i < carts.Count; i++)
-            {
-                Cart cart = carts[i];
+                for (int i = 0; i < carts.Count; i++)
+                {
+                    Cart cart = carts[i];
 
-                Console.WriteLine($@"
+                    Console.WriteLine($@"
 {i + 1}. Product: {cart.Product.Name}
    Price: ₹{cart.Product.Price}
    Quantity: {cart.CartQuantity}
    Subtotal: ₹{cart.Product.Price * cart.CartQuantity}");
-            }
+                }
 
-            decimal totalAmount = this._cartServices.GetCartTotal(userName);
-
-            Console.WriteLine($@"
+                Console.WriteLine($@"
 ==================================
-Total Amount: ₹{totalAmount}
+Total Amount: ₹{this._cartServices.GetCartTotal(userName)}
 ==================================");
 
-            Console.Write(@"
-[C]heckout
+                Console.Write(@"
+[P]urchase All
+[S]elect Individual Items
+[C]lear Cart
 [B]ack to Main Menu
 
 Enter Choice: ");
 
-            ConsoleKey userChoice = Console.ReadKey().Key;
-            Console.Clear();
+                ConsoleKey userChoice = Console.ReadKey().Key;
+                Console.Clear();
 
-            switch (userChoice)
-            {
-                case ConsoleKey.C:
-                    this.Checkout(userName);
-                    break;
-                case ConsoleKey.B:
-                    return;
-                default:
-                    ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
-                    ConsoleHelper.CleanConsole();
-                    break;
+                switch (userChoice)
+                {
+                    case ConsoleKey.P:
+                        this.Checkout(userName, carts.Select(item => item.Product.Name).ToList());
+                        break;
+                    case ConsoleKey.S:
+                        this.SelectCartItems(userName, carts);
+                        break;
+                    case ConsoleKey.C:
+                        Console.Write("Are you sure you want to clear your cart? [Y/N]: ");
+                        if (Console.ReadKey().Key == ConsoleKey.Y)
+                        {
+                            this._cartServices.ClearCart(userName);
+                            ConsoleHelper.WriteSuccessMessage("\nCart cleared successfully.\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nCart clearing cancelled.\n");
+                        }
+
+                        ConsoleHelper.CleanConsole();
+                        break;
+                    case ConsoleKey.B:
+                        return;
+                    default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
+                        ConsoleHelper.CleanConsole();
+                        break;
+                }
             }
+        }
+
+        /// <summary>
+        /// Allows the user to select individual products from the cart.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="carts">Products in the cart.</param>
+        internal void SelectCartItems(string userName, List<Cart> carts)
+        {
+            Console.Write("\nEnter product numbers separated by commas (Example: 1,3): ");
+            string[] selections = (Console.ReadLine() ?? string.Empty).Split(',');
+            List<string> selectedProducts = new List<string>();
+
+            foreach (string selection in selections)
+            {
+                if (!int.TryParse(selection.Trim(), out int productNumber) ||
+                    productNumber < 1 || productNumber > carts.Count)
+                {
+                    ConsoleHelper.WriteErrorMessage("\nInvalid product selection.\n");
+                    ConsoleHelper.CleanConsole();
+                    return;
+                }
+
+                string productName = carts[productNumber - 1].Product.Name;
+                if (!selectedProducts.Contains(productName))
+                {
+                    selectedProducts.Add(productName);
+                }
+            }
+
+            if (selectedProducts.Count == 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nNo products selected.\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+
+            this.Checkout(userName, selectedProducts);
         }
 
         /// <summary>
         /// Handles the checkout process and retrieves delivery details.
         /// </summary>
         /// <param name="userName">Username of the user.</param>
-        private void Checkout(string userName)
+        /// <param name="productNames">Names of products to purchase.</param>
+        internal void Checkout(string userName, List<string> productNames)
         {
             string deliveryAddress;
 
@@ -105,27 +164,56 @@ Enter Choice: ");
                 break;
             }
 
+            string deliveryDate;
+
+            while (true)
+            {
+                Console.Write("\nEnter delivery date (dd-MM-yyyy): ");
+                deliveryDate = Console.ReadLine() ?? string.Empty;
+
+                if (DateOnly.TryParseExact(deliveryDate, "dd-MM-yyyy", out DateOnly selectedDate) && selectedDate >= DateOnly.FromDateTime(DateTime.Today))
+                {
+                    break;
+                }
+
+                ConsoleHelper.WriteErrorMessage("\nEnter a valid delivery date in dd-MM-yyyy format. Past dates are not allowed.\n");
+            }
+
             string deliveryTime;
 
             while (true)
             {
-                Console.Write("\nEnter delivery time (HH:mm) [08:00 - 22:00]: ");
-                deliveryTime = Console.ReadLine() ?? string.Empty;
+                Console.Write(@"
+Select Delivery Time:
+[1] 8 AM - 12 PM
+[2] 12 PM - 4 PM
+[3] 4 PM - 8 PM
 
-                string validatorMessage = Validator.ValidateDeliveryTime(deliveryTime);
+Enter Choice: ");
 
-                if (validatorMessage != "passed")
+                string timeChoice = Console.ReadLine() ?? string.Empty;
+
+                switch (timeChoice)
                 {
-                    ConsoleHelper.WriteErrorMessage($"\n{validatorMessage}\n");
-                    continue;
+                    case "1":
+                        deliveryTime = "8 AM - 12 PM";
+                        break;
+                    case "2":
+                        deliveryTime = "12 PM - 4 PM";
+                        break;
+                    case "3":
+                        deliveryTime = "4 PM - 8 PM";
+                        break;
+                    default:
+                        ConsoleHelper.WriteErrorMessage("\nInvalid time slot.\n");
+                        continue;
                 }
 
-                deliveryTime = deliveryTime.Trim();
                 break;
             }
 
-            List<Cart> carts = this._cartServices.GetCart(userName);
-            decimal totalAmount = this._cartServices.GetCartTotal(userName);
+            List<Cart> carts = this._cartServices.GetCart(userName).Where(item => productNames.Contains(item.Product.Name, StringComparer.OrdinalIgnoreCase)).ToList();
+            decimal totalAmount = carts.Sum(item => item.Product.Price * item.CartQuantity);
 
             Console.WriteLine(@"
 ==================================
@@ -143,6 +231,7 @@ Subtotal: ₹{cart.Product.Price * cart.CartQuantity}");
 
             Console.WriteLine($@"
 Delivery Address: {deliveryAddress}
+Delivery Date: {deliveryDate}
 Delivery Time: {deliveryTime}
 
 ==================================
@@ -150,31 +239,22 @@ Total Amount: ₹{totalAmount}
 ==================================");
 
             Console.Write("\nConfirm Order? [Y/N]: ");
-            ConsoleKey confirmation = Console.ReadKey().Key;
-            Console.WriteLine();
-
-            if (confirmation != ConsoleKey.Y)
+            if (Console.ReadKey().Key != ConsoleKey.Y)
             {
                 ConsoleHelper.WriteErrorMessage("\nOrder cancelled. Your cart has been retained.\n");
                 ConsoleHelper.CleanConsole();
                 return;
             }
 
-            Order? order = this._cartServices.Checkout(
-                userName,
-                deliveryAddress,
-                deliveryTime);
-
+            Order? order = this._cartServices.Checkout(userName, deliveryAddress, deliveryDate, deliveryTime, productNames);
             if (order == null)
             {
-                ConsoleHelper.WriteErrorMessage(
-                    "\nCheckout failed. Product stock may have changed. Please check your cart.\n");
+                ConsoleHelper.WriteErrorMessage("\nCheckout failed. Product stock may have changed. Please check your cart.\n");
                 ConsoleHelper.CleanConsole();
                 return;
             }
 
             ConsoleHelper.WriteSuccessMessage("\nOrder placed successfully!\n");
-
             Console.WriteLine($@"
 ==================================
           ORDER CONFIRMED
@@ -182,11 +262,58 @@ Total Amount: ₹{totalAmount}
 Order ID: {order.OrderId}
 Customer: {order.UserName}
 Delivery Address: {order.DeliveryAddress}
+Delivery Date: {order.DeliveryDate}
 Delivery Time: {order.DeliveryTime}
 Order Date: {order.OrderDate}
 
 Total Amount: ₹{order.TotalAmount}
 ==================================");
+
+            ConsoleHelper.CleanConsole();
+        }
+
+        /// <summary>
+        /// Displays the order history of the current user.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        internal void DisplayOrderHistory(string userName)
+        {
+            List<Order> orders = this._cartServices.GetUserOrders(userName);
+            Console.WriteLine(@"
+==================================
+           ORDER HISTORY
+==================================");
+
+            if (orders.Count == 0)
+            {
+                ConsoleHelper.WriteErrorMessage("\nNo previous orders found.\n");
+                ConsoleHelper.CleanConsole();
+                return;
+            }
+
+            foreach (Order order in orders)
+            {
+                Console.WriteLine($@"
+==================================
+Order ID: {order.OrderId}
+Order Date: {order.OrderDate}
+Delivery Date: {order.DeliveryDate}
+Delivery Time: {order.DeliveryTime}
+Delivery Address: {order.DeliveryAddress}");
+
+                foreach (OrderItem item in order.Items)
+                {
+                    Console.WriteLine($@"
+Product: {item.ProductName}
+Price: ₹{item.Price}
+Quantity: {item.Quantity}
+Subtotal: ₹{item.SubTotal}");
+                }
+
+                Console.WriteLine($@"
+Total Amount: ₹{order.TotalAmount}
+==================================");
+            }
 
             ConsoleHelper.CleanConsole();
         }
