@@ -216,9 +216,9 @@ Enter Choice: ");
         {
             Console.Write("\nEnter quantity: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity < 1 || quantity > 10)
             {
-                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                ConsoleHelper.WriteErrorMessage("\nQuantity must be between 1 and 10.\n");
                 return;
             }
 
@@ -242,9 +242,9 @@ Enter Choice: ");
         {
             Console.Write("\nEnter quantity: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity < 1 || quantity > 10)
             {
-                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                ConsoleHelper.WriteErrorMessage("\nQuantity must be between 1 and 10.\n");
                 return;
             }
 

@@ -170,16 +170,56 @@ Enter Choice: ");
             }
 
             Product selectedProduct = products[serialNumber - 1];
-            int quantity;
-            Console.Write($"\nEnter the new stock quantity for {selectedProduct.Name}: ");
-            while (!int.TryParse(Console.ReadLine(), out quantity) || quantity < 0)
+            int existingStock = selectedProduct.Quantity;
+
+            Console.Write($@"
+
+Selected Product: {selectedProduct.Name}
+Available Stock: {existingStock}
+
+[A]dd stock to existing amount
+[D]efine new stock amount
+
+Enter Choice: ");
+
+            ConsoleKey stockChoice = Console.ReadKey().Key;
+            Console.WriteLine();
+
+            if (stockChoice != ConsoleKey.A && stockChoice != ConsoleKey.D)
             {
-                ConsoleHelper.WriteErrorMessage("\nEnter a valid stock quantity.\n");
-                Console.Write("Enter new stock quantity: ");
+                ConsoleHelper.WriteErrorMessage("\nInvalid choice.\n");
+                return;
             }
 
-            this._adminServices.UpdateProductStock(selectedProduct.Name, quantity);
-            ConsoleHelper.WriteSuccessMessage($"\nStock updated successfully for {selectedProduct.Name}.\n");
+            int quantity;
+            if (stockChoice == ConsoleKey.A)
+            {
+                Console.Write("\nEnter quantity to add: ");
+            }
+            else
+            {
+                Console.Write("\nEnter new stock quantity: ");
+            }
+
+            while (!int.TryParse(Console.ReadLine(), out quantity) || quantity < 0 || (stockChoice == ConsoleKey.A && quantity == 0))
+            {
+                ConsoleHelper.WriteErrorMessage("\nEnter a valid stock quantity.\n");
+                Console.Write("Enter quantity: ");
+            }
+
+            bool isAddStock = stockChoice == ConsoleKey.A;
+            bool isUpdated = this._adminServices.UpdateProductStock(selectedProduct.Name, quantity, isAddStock);
+            if (isUpdated)
+            {
+                int updatedStock = isAddStock ? existingStock + quantity : quantity;
+                ConsoleHelper.WriteSuccessMessage($"\nStock updated successfully for {selectedProduct.Name}.\n");
+                Console.WriteLine($"Previous Stock: {existingStock}");
+                Console.WriteLine($"Updated Stock: {updatedStock}\n");
+            }
+            else
+            {
+                ConsoleHelper.WriteErrorMessage("\nUnable to update product stock.\n");
+            }
         }
 
         /// <summary>

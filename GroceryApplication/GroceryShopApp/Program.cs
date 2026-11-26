@@ -1,4 +1,5 @@
-﻿using GroceryShopApp.Repository;
+﻿using GroceryShopApp.Interface;
+using GroceryShopApp.Repository;
 using GroceryShopApp.Services;
 using GroceryShopApp.View;
 
@@ -13,11 +14,11 @@ namespace GroceryShopApp
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            UserRepository userRepository = new UserRepository("Users.json");
-            ProductRepository productRepository = new ProductRepository("Products.json");
-            CartRepository cartRepository = new CartRepository("Carts.json");
-            OrderRepository orderRepository = new OrderRepository("Orders.json");
-            WishlistRepository wishlistRepository = new WishlistRepository("Wishlists.json");
+            IUserRepository userRepository = new UserRepository("Users.json");
+            IProductRepository productRepository = new ProductRepository("Products.json");
+            ICartRepository cartRepository = new CartRepository("Carts.json");
+            IOrderRepository orderRepository = new OrderRepository("Orders.json");
+            IWishlistRepository wishlistRepository = new WishlistRepository("Wishlists.json");
 
             UserServices userServices = new UserServices(userRepository);
             ProductServices productServices = new ProductServices(productRepository);

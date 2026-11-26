@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using GroceryShopApp.Interface;
 using GroceryShopApp.Model;
-using GroceryShopApp.Repository;
 
 namespace GroceryShopApp.Services
 {
@@ -10,13 +10,13 @@ namespace GroceryShopApp.Services
     /// </summary>
     internal class UserServices
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserServices"/> class.
         /// </summary>
         /// <param name="userRepository">Repository of the user.</param>
-        public UserServices(UserRepository userRepository)
+        public UserServices(IUserRepository userRepository)
         {
             this._userRepository = userRepository;
         }

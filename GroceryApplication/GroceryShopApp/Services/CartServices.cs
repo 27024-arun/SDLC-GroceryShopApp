@@ -1,5 +1,5 @@
-﻿using GroceryShopApp.Model;
-using GroceryShopApp.Repository;
+﻿using GroceryShopApp.Interface;
+using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Services
 {
@@ -8,9 +8,12 @@ namespace GroceryShopApp.Services
     /// </summary>
     internal class CartServices
     {
-        private readonly CartRepository _cartRepository;
-        private readonly ProductRepository _productRepository;
-        private readonly OrderRepository _orderRepository;
+        private const int MaxProductQuantity = 10;
+        private const int MaxCartProducts = 20;
+
+        private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IOrderRepository _orderRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CartServices"/> class.
@@ -18,7 +21,7 @@ namespace GroceryShopApp.Services
         /// <param name="cartRepository">Repository of the cart.</param>
         /// <param name="productRepository">Repository of the products.</param>
         /// <param name="orderRepository">Repository of the orders.</param>
-        public CartServices(CartRepository cartRepository, ProductRepository productRepository, OrderRepository orderRepository)
+        public CartServices(ICartRepository cartRepository, IProductRepository productRepository, IOrderRepository orderRepository)
         {
             this._cartRepository = cartRepository;
             this._productRepository = productRepository;
@@ -34,9 +37,9 @@ namespace GroceryShopApp.Services
         /// <returns>Returns whether the product was added or not.</returns>
         internal string AddToCart(string userName, string productName, int quantity)
         {
-            if (quantity <= 0)
+            if (quantity < 1 || quantity > MaxProductQuantity)
             {
-                return "Quantity must be greater than zero.";
+                return "Quantity must be between 1 and 10.";
             }
 
             Product? product = this._productRepository.GetAllProducts().FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
@@ -45,16 +48,26 @@ namespace GroceryShopApp.Services
                 return "Product not found.";
             }
 
-            if (product.Quantity == 0)
+            if (product.Quantity <= 0)
             {
                 return "Product is out of stock.";
             }
 
-            Cart? existingCart = this._cartRepository.GetCart(userName).FirstOrDefault(item => item.Product.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
+            List<Cart> carts = this._cartRepository.GetCart(userName);
+            Cart? existingCart = carts.FirstOrDefault(item => item.Product.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
             int cartQuantity = quantity;
             if (existingCart != null)
             {
                 cartQuantity += existingCart.CartQuantity;
+            }
+            else if (carts.Count >= MaxCartProducts)
+            {
+                return "Cart cannot contain more than 20 different products.";
+            }
+
+            if (cartQuantity > MaxProductQuantity)
+            {
+                return "Maximum quantity allowed per product is 10.";
             }
 
             if (cartQuantity > product.Quantity)
@@ -141,7 +154,7 @@ namespace GroceryShopApp.Services
             foreach (Cart cart in carts)
             {
                 Product? product = products.FirstOrDefault(item => item.Name.Equals(cart.Product.Name, StringComparison.OrdinalIgnoreCase));
-                if (product == null || product.Quantity < cart.CartQuantity)
+                if (product == null || cart.CartQuantity < 1 || cart.CartQuantity > MaxProductQuantity || product.Quantity < cart.CartQuantity)
                 {
                     return null;
                 }

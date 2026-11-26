@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using GroceryShopApp.Interface;
 using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Repository
@@ -7,7 +8,7 @@ namespace GroceryShopApp.Repository
     /// <summary>
     /// Handles the storage and retrieval of cart data to and from files.
     /// </summary>
-    internal class CartRepository
+    internal class CartRepository : ICartRepository
     {
         private readonly List<Cart> _carts = new List<Cart>();
         private readonly string _filePath;
@@ -33,7 +34,7 @@ namespace GroceryShopApp.Repository
         /// </summary>
         /// <param name="userName">Username of the user.</param>
         /// <returns>List of cart products.</returns>
-        internal List<Cart> GetCart(string userName)
+        public List<Cart> GetCart(string userName)
         {
             return this._carts.Where(cart => cart.UserName == userName).ToList();
         }
@@ -42,7 +43,7 @@ namespace GroceryShopApp.Repository
         /// Adds a product to the user's cart or updates its quantity.
         /// </summary>
         /// <param name="cart">Cart details.</param>
-        internal void AddToCart(Cart cart)
+        public void AddToCart(Cart cart)
         {
             Cart? existingCart = this._carts.FirstOrDefault(item => item.UserName == cart.UserName && item.Product.Name == cart.Product.Name);
             if (existingCart != null)
@@ -62,7 +63,7 @@ namespace GroceryShopApp.Repository
         /// Removes all cart products of a particular user.
         /// </summary>
         /// <param name="userName">Username of the user.</param>
-        internal void RemoveCart(string userName)
+        public void RemoveCart(string userName)
         {
             this._carts.RemoveAll(cart => cart.UserName == userName);
             this.WriteAll();
@@ -73,7 +74,7 @@ namespace GroceryShopApp.Repository
         /// </summary>
         /// <param name="userName">Username of the user.</param>
         /// <param name="productNames">Names of products to be removed.</param>
-        internal void RemoveCartItems(string userName, List<string> productNames)
+        public void RemoveCartItems(string userName, List<string> productNames)
         {
             this._carts.RemoveAll(cart => cart.UserName == userName && productNames.Contains(cart.Product.Name, StringComparer.OrdinalIgnoreCase));
             this.WriteAll();

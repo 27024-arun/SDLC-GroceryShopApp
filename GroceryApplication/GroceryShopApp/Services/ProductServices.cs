@@ -1,5 +1,5 @@
-﻿using GroceryShopApp.Model;
-using GroceryShopApp.Repository;
+﻿using GroceryShopApp.Interface;
+using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Services
 {
@@ -8,13 +8,13 @@ namespace GroceryShopApp.Services
     /// </summary>
     internal class ProductServices
     {
-        private readonly ProductRepository _productRepository;
+        private readonly IProductRepository _productRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductServices"/> class.
         /// </summary>
         /// <param name="productRepository">Repository of the products.</param>
-        public ProductServices(ProductRepository productRepository)
+        public ProductServices(IProductRepository productRepository)
         {
             this._productRepository = productRepository;
         }

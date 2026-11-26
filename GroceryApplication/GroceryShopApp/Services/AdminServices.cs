@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using GroceryShopApp.Interface;
 using GroceryShopApp.Model;
-using GroceryShopApp.Repository;
 
 namespace GroceryShopApp.Services
 {
@@ -10,9 +10,9 @@ namespace GroceryShopApp.Services
     /// </summary>
     internal class AdminServices
     {
-        private readonly UserRepository _userRepository;
-        private readonly ProductRepository _productRepository;
-        private readonly OrderRepository _orderRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IOrderRepository _orderRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdminServices"/> class.
@@ -20,7 +20,7 @@ namespace GroceryShopApp.Services
         /// <param name="userRepository">Repository of users.</param>
         /// <param name="productRepository">Repository of products.</param>
         /// <param name="orderRepository">Repository of orders.</param>
-        public AdminServices(UserRepository userRepository, ProductRepository productRepository, OrderRepository orderRepository)
+        public AdminServices(IUserRepository userRepository, IProductRepository productRepository, IOrderRepository orderRepository)
         {
             this._userRepository = userRepository;
             this._productRepository = productRepository;
@@ -62,13 +62,19 @@ namespace GroceryShopApp.Services
         /// Updates the stock quantity of a product.
         /// </summary>
         /// <param name="productName">Name of the product.</param>
-        /// <param name="quantity">New stock quantity.</param>
+        /// <param name="quantity">Stock quantity.</param>
+        /// <param name="isAddStock">Whether the quantity should be added to the existing stock.</param>
         /// <returns>Returns whether the stock was updated or not.</returns>
-        internal bool UpdateProductStock(string productName, int quantity)
+        internal bool UpdateProductStock(string productName, int quantity, bool isAddStock)
         {
             if (string.IsNullOrWhiteSpace(productName) || quantity < 0)
             {
                 return false;
+            }
+
+            if (isAddStock)
+            {
+                return this._productRepository.AddProductStock(productName.Trim(), quantity);
             }
 
             return this._productRepository.SetProductStock(productName.Trim(), quantity);
