@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using GroceryShopApp.Interface;
 using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Repository
@@ -7,7 +8,7 @@ namespace GroceryShopApp.Repository
     /// <summary>
     /// Handles the storage and retrieval of product data to and from files.
     /// </summary>
-    internal class ProductRepository
+    internal class ProductRepository : IProductRepository
     {
         private readonly List<Product> _products = new List<Product>();
         private readonly string _filePath;
@@ -32,7 +33,7 @@ namespace GroceryShopApp.Repository
         /// Retrieves all the products from the files.
         /// </summary>
         /// <returns>Products from files.</returns>
-        internal List<Product> GetAllProducts()
+        public List<Product> GetAllProducts()
         {
             return this._products.ToList();
         }
@@ -42,7 +43,7 @@ namespace GroceryShopApp.Repository
         /// </summary>
         /// <param name="productName">Name of the product.</param>
         /// <param name="quantity">Quantity to be reduced.</param>
-        internal void UpdateProductStock(string productName, int quantity)
+        public void UpdateProductStock(string productName, int quantity)
         {
             Product? product = this._products.FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
             if (product != null && quantity > 0 && product.Quantity >= quantity)
@@ -58,7 +59,7 @@ namespace GroceryShopApp.Repository
         /// <param name="productName">Name of the product.</param>
         /// <param name="quantity">New stock quantity.</param>
         /// <returns>Returns whether the stock was updated or not.</returns>
-        internal bool SetProductStock(string productName, int quantity)
+        public bool SetProductStock(string productName, int quantity)
         {
             Product? product = this._products.FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
             if (product == null || quantity < 0)
@@ -72,10 +73,29 @@ namespace GroceryShopApp.Repository
         }
 
         /// <summary>
+        /// Adds the given quantity to the existing stock of a product.
+        /// </summary>
+        /// <param name="productName">Name of the product.</param>
+        /// <param name="quantity">Quantity to be added.</param>
+        /// <returns>Returns whether the stock was updated or not.</returns>
+        public bool AddProductStock(string productName, int quantity)
+        {
+            Product? product = this._products.FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
+            if (product == null || quantity <= 0 || product.Quantity > int.MaxValue - quantity)
+            {
+                return false;
+            }
+
+            product.Quantity += quantity;
+            this.WriteAll();
+            return true;
+        }
+
+        /// <summary>
         /// Retrieves products whose stock is at or below the low-stock limit.
         /// </summary>
         /// <returns>List of low-stock products.</returns>
-        internal List<Product> GetLowStockProducts()
+        public List<Product> GetLowStockProducts()
         {
             return this._products.Where(product => product.Quantity <= 5).ToList();
         }

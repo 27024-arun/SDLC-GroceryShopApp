@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using GroceryShopApp.Interface;
 using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Repository
@@ -6,7 +7,7 @@ namespace GroceryShopApp.Repository
     /// <summary>
     /// Handles the storage and retrieval of order data to and from files.
     /// </summary>
-    internal class OrderRepository
+    internal class OrderRepository : IOrderRepository
     {
         private readonly List<Order> _orders = new List<Order>();
         private readonly string _filePath;
@@ -30,7 +31,7 @@ namespace GroceryShopApp.Repository
         /// Adds a new order to the repository.
         /// </summary>
         /// <param name="order">Order details.</param>
-        internal void AddOrder(Order order)
+        public void AddOrder(Order order)
         {
             this._orders.Add(order);
             this.WriteAll();
@@ -40,7 +41,7 @@ namespace GroceryShopApp.Repository
         /// Retrieves all the orders.
         /// </summary>
         /// <returns>List of all orders.</returns>
-        internal List<Order> GetAllOrders()
+        public List<Order> GetAllOrders()
         {
             return this._orders.ToList();
         }
@@ -50,7 +51,7 @@ namespace GroceryShopApp.Repository
         /// </summary>
         /// <param name="userName">Username of the user.</param>
         /// <returns>List of user orders.</returns>
-        internal List<Order> GetUserOrders(string userName)
+        public List<Order> GetUserOrders(string userName)
         {
             return this._orders.Where(order => order.UserName == userName).ToList();
         }

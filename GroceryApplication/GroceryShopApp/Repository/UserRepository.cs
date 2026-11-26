@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using GroceryShopApp.Interface;
 using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Repository
@@ -6,7 +7,7 @@ namespace GroceryShopApp.Repository
     /// <summary>
     /// Handles the storage and retrieval of user data to and from files.
     /// </summary>
-    internal class UserRepository
+    internal class UserRepository : IUserRepository
     {
         private readonly List<User> _users = new List<User>();
         private readonly string _filePath;
@@ -30,7 +31,7 @@ namespace GroceryShopApp.Repository
         /// Adds the user data to the repository.
         /// </summary>
         /// <param name="user">Datas of user</param>
-        internal void AddUser(User user)
+        public void AddUser(User user)
         {
             this._users.Add(user);
             this.WriteAll();
@@ -42,7 +43,7 @@ namespace GroceryShopApp.Repository
         /// <param name="userName">Unique username of the user</param>
         /// <param name="phone">Phone number of the user</param>
         /// <returns>Returns whether the user already exits or not</returns>
-        internal bool IsUserAlreadyExists(string userName, string phone)
+        public bool IsUserAlreadyExists(string userName, string phone)
         {
             return this._users.Any(user => user.UserName == userName || user.Phone == phone);
         }
@@ -53,7 +54,7 @@ namespace GroceryShopApp.Repository
         /// <param name="userName">Unique username of the user</param>
         /// <param name="password">Password of the user</param>
         /// <returns>Returns true is user already signed up or vice-versa.</returns>
-        internal bool IsRegisteredUser(string userName, string password)
+        public bool IsRegisteredUser(string userName, string password)
         {
             return this._users.Any(user => user.UserName == userName && user.Password == password);
         }
@@ -64,7 +65,7 @@ namespace GroceryShopApp.Repository
         /// <param name="userName">Unique username of the user</param>
         /// <param name="password">Password of the user</param>
         /// <returns>Returns true is user already signed up or vice-versa and also checks if he is admin or not.</returns>
-        internal bool IsUserAdmin(string userName, string password)
+        public bool IsUserAdmin(string userName, string password)
         {
             return this._users.Any(user => user.UserName == userName && user.Password == password && user.IsAdmin == true);
         }
@@ -74,7 +75,7 @@ namespace GroceryShopApp.Repository
         /// </summary>
         /// <param name="userName">Unique username of the user</param>
         /// <returns>Returns true if username exists or vice-versa</returns>
-        internal bool IsUserNameValid(string userName)
+        public bool IsUserNameValid(string userName)
         {
             return this._users.Any(user => user.UserName == userName);
         }
@@ -83,7 +84,7 @@ namespace GroceryShopApp.Repository
         /// Identifies whether the admin is already present or not.
         /// </summary>
         /// <returns>Returns true if admin is present or not.</returns>
-        internal bool IsAdminPresent()
+        public bool IsAdminPresent()
         {
             return this._users.Any(user => user.IsAdmin == true);
         }

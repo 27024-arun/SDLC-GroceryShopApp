@@ -196,7 +196,8 @@ Enter Choice: ");
                     this.PurchaseProduct(product, userName);
                     break;
                 case ConsoleKey.W:
-
+                    string message = this._wishlistServices.AddToWishlist(userName, product.Name);
+                    ConsoleHelper.WriteSuccessMessage($"\n{message}\n");
                     break;
                 case ConsoleKey.B:
                     return;
@@ -215,9 +216,9 @@ Enter Choice: ");
         {
             Console.Write("\nEnter quantity: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity < 1 || quantity > 10)
             {
-                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                ConsoleHelper.WriteErrorMessage("\nQuantity must be between 1 and 10.\n");
                 return;
             }
 
@@ -241,9 +242,9 @@ Enter Choice: ");
         {
             Console.Write("\nEnter quantity: ");
 
-            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity <= 0)
+            if (!int.TryParse(Console.ReadLine(), out int quantity) || quantity < 1 || quantity > 10)
             {
-                ConsoleHelper.WriteErrorMessage("\nInvalid quantity.\n");
+                ConsoleHelper.WriteErrorMessage("\nQuantity must be between 1 and 10.\n");
                 return;
             }
 

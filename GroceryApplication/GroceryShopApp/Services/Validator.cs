@@ -79,31 +79,6 @@
             return "passed";
         }
 
-        /// <summary>
-        /// Validates the delivery time entered by the user.
-        /// </summary>
-        /// <param name="deliveryTime">Delivery time.</param>
-        /// <returns>Returns whether the delivery time is valid or not.</returns>
-        internal static string ValidateDeliveryTime(string? deliveryTime)
-        {
-            if (string.IsNullOrWhiteSpace(deliveryTime))
-            {
-                return "Delivery time cannot be empty.";
-            }
-
-            if (!TimeOnly.TryParseExact(deliveryTime, "HH:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out TimeOnly time))
-            {
-                return "Enter delivery time in HH:mm format.";
-            }
-
-            if (time < new TimeOnly(8, 0) || time > new TimeOnly(22, 0))
-            {
-                return "Delivery time must be between 08:00 and 22:00.";
-            }
-
-            return "passed";
-        }
-
         private static bool IsAlphaNumeric(string data)
         {
             int digit = 0;

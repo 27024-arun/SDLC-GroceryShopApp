@@ -1,4 +1,5 @@
-﻿using GroceryShopApp.Repository;
+﻿using GroceryShopApp.Interface;
+using GroceryShopApp.Model;
 
 namespace GroceryShopApp.Services
 {
@@ -7,18 +8,68 @@ namespace GroceryShopApp.Services
     /// </summary>
     internal class WishlistServices
     {
-        private readonly WishlistRepository _wishlistRepository;
-        private readonly ProductRepository _productRepository;
+        private readonly IWishlistRepository _wishlistRepository;
+        private readonly IProductRepository _productRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WishlistServices"/> class.
         /// </summary>
         /// <param name="wishlistRepository">Repository of the wishlist.</param>
         /// <param name="productRepository">Repository of the products.</param>
-        public WishlistServices(WishlistRepository wishlistRepository, ProductRepository productRepository)
+        public WishlistServices(IWishlistRepository wishlistRepository, IProductRepository productRepository)
         {
             this._wishlistRepository = wishlistRepository;
             this._productRepository = productRepository;
+        }
+
+        /// <summary>
+        /// Adds a product to the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="productName">Name of the product.</param>
+        /// <returns>Returns the result of the wishlist operation.</returns>
+        internal string AddToWishlist(string userName, string productName)
+        {
+            Product? product = this._productRepository.GetAllProducts().FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
+            if (product == null)
+            {
+                return "Product not found.";
+            }
+
+            if (this._wishlistRepository.GetWishlist(userName).Any(item => item.Product.Name.Equals(productName, StringComparison.OrdinalIgnoreCase)))
+            {
+                return "Product already exists in wishlist.";
+            }
+
+            Cart cart = new Cart
+            {
+                UserName = userName,
+                Product = product,
+                CartQuantity = 1,
+            };
+
+            this._wishlistRepository.AddToWishlist(cart);
+            return "Product added to wishlist successfully.";
+        }
+
+        /// <summary>
+        /// Retrieves all products in the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <returns>List of wishlist products.</returns>
+        internal List<Cart> GetWishlist(string userName)
+        {
+            return this._wishlistRepository.GetWishlist(userName);
+        }
+
+        /// <summary>
+        /// Removes a product from the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="productName">Name of the product.</param>
+        internal void RemoveFromWishlist(string userName, string productName)
+        {
+            this._wishlistRepository.RemoveFromWishlist(userName, productName);
         }
     }
 }
