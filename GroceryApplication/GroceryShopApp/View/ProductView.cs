@@ -196,7 +196,8 @@ Enter Choice: ");
                     this.PurchaseProduct(product, userName);
                     break;
                 case ConsoleKey.W:
-
+                    string message = this._wishlistServices.AddToWishlist(userName, product.Name);
+                    ConsoleHelper.WriteSuccessMessage($"\n{message}\n");
                     break;
                 case ConsoleKey.B:
                     return;

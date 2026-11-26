@@ -1,4 +1,5 @@
-﻿using GroceryShopApp.Repository;
+﻿using GroceryShopApp.Model;
+using GroceryShopApp.Repository;
 
 namespace GroceryShopApp.Services
 {
@@ -19,6 +20,56 @@ namespace GroceryShopApp.Services
         {
             this._wishlistRepository = wishlistRepository;
             this._productRepository = productRepository;
+        }
+
+        /// <summary>
+        /// Adds a product to the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="productName">Name of the product.</param>
+        /// <returns>Returns the result of the wishlist operation.</returns>
+        internal string AddToWishlist(string userName, string productName)
+        {
+            Product? product = this._productRepository.GetAllProducts().FirstOrDefault(item => item.Name.Equals(productName, StringComparison.OrdinalIgnoreCase));
+            if (product == null)
+            {
+                return "Product not found.";
+            }
+
+            if (this._wishlistRepository.GetWishlist(userName).Any(item => item.Product.Name.Equals(productName, StringComparison.OrdinalIgnoreCase)))
+            {
+                return "Product already exists in wishlist.";
+            }
+
+            Cart cart = new Cart
+            {
+                UserName = userName,
+                Product = product,
+                CartQuantity = 1,
+            };
+
+            this._wishlistRepository.AddToWishlist(cart);
+            return "Product added to wishlist successfully.";
+        }
+
+        /// <summary>
+        /// Retrieves all products in the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <returns>List of wishlist products.</returns>
+        internal List<Cart> GetWishlist(string userName)
+        {
+            return this._wishlistRepository.GetWishlist(userName);
+        }
+
+        /// <summary>
+        /// Removes a product from the user's wishlist.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="productName">Name of the product.</param>
+        internal void RemoveFromWishlist(string userName, string productName)
+        {
+            this._wishlistRepository.RemoveFromWishlist(userName, productName);
         }
     }
 }
